@@ -84,6 +84,7 @@ stps/
 | [DesignDoc](docs/DesignDoc.md) | Visão do produto, arquitetura das 3 camadas, plano de execução |
 | [DocTech](docs/DocTech.md) | Especificação técnica, schemas, API, DoD |
 | [Arquitetura](docs/architecture/ARCHITECTURE.md) | Diagrama completo, decisões arquiteturais |
+| [Indexer](docs/architecture/INDEXER.md) | Helius webhook, parsers, emitter, testes locais e tunnel |
 | [Algoritmo de Scoring](docs/architecture/SCORING_ALGORITHM.md) | Heurísticas, pesos e caso Drift |
 | [Smart Contract Spec](docs/architecture/SMART_CONTRACT.md) | Instruções Anchor, contas, erros |
 | [Setup Local](docs/guides/SETUP.md) | Pré-requisitos, env vars, deploy Devnet |
