@@ -63,7 +63,7 @@ flowchart TD
     AP -->|PDA updated| RPC
     API -->|read PDA| RPC
     FE -->|GET /api/score/:id| API
-    SDK -->|getScore()| API
+    SDK -->|getScore| API
 ```
 
 ---
