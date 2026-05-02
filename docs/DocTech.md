@@ -250,6 +250,7 @@ stps/
 ## 9. Links
 
 * 📐 Arquitetura: [`docs/architecture/ARCHITECTURE.md`](architecture/ARCHITECTURE.md)
+* Indexer: [`docs/architecture/INDEXER.md`](architecture/INDEXER.md)
 * 🧮 Algoritmo de Scoring: [`docs/architecture/SCORING_ALGORITHM.md`](architecture/SCORING_ALGORITHM.md)
 * 📜 Smart Contract Spec: [`docs/architecture/SMART_CONTRACT.md`](architecture/SMART_CONTRACT.md)
 * 🛠️ Setup local + deploy: [`docs/guides/SETUP.md`](guides/SETUP.md)

@@ -11,7 +11,7 @@ use instructions::*;
 // Atualizar após o primeiro `anchor deploy --provider.cluster devnet`
 // e rodar `anchor build` novamente para o IDL refletir o novo ID.
 // ---------------------------------------------------------------------------
-declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
+declare_id!("FuAM2peBxYQgr4Sspd43FkYK7vuCZ5rTPxZYCnCSeCZk");
 
 #[program]
 pub mod stps {

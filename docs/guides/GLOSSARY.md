@@ -190,7 +190,7 @@ Protocolo de multisig para Solana amplamente usado por DeFi protocols para geren
 
 **No STPS:** Principal fonte de eventos da Camada 1. O Indexer monitora transações enviadas ao programa Squads para detectar mudanças de threshold, adição/remoção de membros e uso de chaves de emergência.
 
-**Program ID:** `SMPLecH534NA9acpos4G6x7uf3LWbCAwZQE9e8ZekMu5`
+**Program ID:** `SMPLecH534NA9acpos4G6x7uf3LWbCAwZQE9e8ZekMu`
 
 ---
 

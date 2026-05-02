@@ -1,168 +1,26 @@
-# STPS — Tutorial de Instalação e Setup
+# STPS — Setup Local e Deploy
 
-> **Sistema operacional:** macOS (Apple Silicon ou Intel). Linux funciona com os mesmos comandos. Windows requer WSL2.
+## Pré-requisitos
 
----
+Certifique-se de ter as seguintes ferramentas instaladas:
 
-## Passo 1 — Instalar Rust
+| Ferramenta | Versão Mínima | Instalação |
+| :--- | :--- | :--- |
+| Node.js | 20.x LTS | [nodejs.org](https://nodejs.org) ou `nvm install 20` |
+| pnpm | 8.x | `npm install -g pnpm` |
+| Rust | 1.75+ | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` |
+| Solana CLI | 1.18+ | [solana.com/docs/intro/installation](https://solana.com/docs/intro/installation) |
+| Anchor CLI | 0.29+ | `cargo install --git https://github.com/coral-xyz/anchor avm --locked && avm install 0.29.0 && avm use 0.29.0` |
 
-Rust é necessário para compilar o smart contract Anchor.
-
-```bash
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-```
-
-Após a instalação, carregue o Rust no terminal atual:
-
-```bash
-source "$HOME/.cargo/env"
-```
-
-Verifique:
+Verifique as instalações:
 
 ```bash
-cargo --version   # cargo 1.75+
-rustc --version   # rustc 1.75+
-```
-
----
-
-## Passo 2 — Instalar Solana CLI
-
-```bash
-sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
-```
-
-Carregue o PATH:
-
-```bash
-export PATH="/Users/$USER/.local/share/solana/install/active_release/bin:$PATH"
-```
-
-Verifique:
-
-```bash
-solana --version   # solana-cli 1.18+
-```
-
----
-
-## Passo 3 — Instalar Anchor via AVM
-
-O AVM (Anchor Version Manager) gerencia versões do Anchor CLI.
-
-```bash
-cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
-```
-
-> ⏳ Esse passo demora ~5 minutos pois compila do zero.
-
-Instale e ative a versão 0.29.0:
-
-```bash
-avm install 0.29.0
-avm use 0.29.0
-```
-
-Carregue o PATH do AVM:
-
-```bash
-export PATH="$HOME/.avm/bin:$PATH"
-```
-
-Verifique:
-
-```bash
-anchor --version   # anchor-cli 0.29.0
-```
-
----
-
-## Passo 4 — Corrigir compatibilidade build-bpf / build-sbf
-
-> **Apenas necessário uma vez.** Versões recentes do Solana renomearam `build-bpf` para `build-sbf`, mas Anchor 0.29 ainda usa o nome antigo.
-
-Instale o `cargo-build-sbf`:
-
-```bash
-cargo install cargo-build-sbf
-```
-
-Crie um shim que faz `build-bpf` apontar para `build-sbf`:
-
-```bash
-printf '#!/bin/bash\nshift\nexec cargo build-sbf "$@"\n' > ~/.cargo/bin/cargo-build-bpf
-chmod +x ~/.cargo/bin/cargo-build-bpf
-```
-
----
-
-## Passo 5 — Salvar o PATH permanentemente
-
-Para não precisar exportar o PATH toda vez que abrir um terminal:
-
-```bash
-echo 'source "$HOME/.cargo/env"' >> ~/.zshrc
-echo 'export PATH="/Users/$USER/.local/share/solana/install/active_release/bin:$PATH"' >> ~/.zshrc
-echo 'export PATH="$HOME/.avm/bin:$HOME/.cargo/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
-```
-
----
-
-## Passo 6 — Instalar Node.js e pnpm
-
-```bash
-# Instalar Node.js 20 via nvm (recomendado)
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-source ~/.zshrc
-nvm install 20
-nvm use 20
-
-# Instalar pnpm
-npm install -g pnpm
-```
-
-Verifique:
-
-```bash
-node --version   # v20.x.x
-pnpm --version   # 8.x.x
-```
-
----
-
-## Verificação Final
-
-Após todos os passos, abra um **novo terminal** e confirme:
-
-```bash
-cargo --version     # cargo 1.75+
-rustc --version     # rustc 1.75+
-solana --version    # solana-cli 1.18+
-anchor --version    # anchor-cli 0.29.0
 node --version      # v20.x.x
 pnpm --version      # 8.x.x
+rustc --version     # rustc 1.75+
+solana --version    # solana-cli 1.18+
+anchor --version    # anchor-cli 0.29+
 ```
-
----
-
-## Passo 7 — Clonar o projeto e buildar
-
-```bash
-git clone https://github.com/HeitorCand/STPS.git
-cd STPS
-
-# Buildar o smart contract
-anchor build
-```
-
-Saída esperada:
-```
-Finished `release` profile [optimized] target(s) in Xs
-```
-
-> Alguns `warnings` sobre `unexpected cfg` são normais — são incompatibilidades de versão inofensivas entre Anchor 0.29 e o Solana atual.
 
 ---
 
@@ -323,7 +181,7 @@ pnpm dev   # Turborepo roda todos em paralelo
    - **URL:** `https://seu-ngrok-ou-deploy.url/webhook/governance`
    - **Transaction Types:** `Any`
    - **Account Addresses:** adicione os Program IDs que deseja monitorar:
-     - Squads Multisig: `SMPLecH534NA9acpos4G6x7uf3LWbCAwZQE9e8ZekMu5`
+     - Squads Multisig: `SMPLecH534NA9acpos4G6x7uf3LWbCAwZQE9e8ZekMu`
      - SPL Governance: `GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw`
 4. Salve e copie a API key para `HELIUS_API_KEY` no `.env` do Indexer
 
@@ -354,7 +212,7 @@ curl -X POST http://localhost:3000/webhook/governance \
   -H "Content-Type: application/json" \
   -d '{
     "type": "GOVERNANCE",
-    "instructions": [{"programId": "SMPLecH534NA9acpos4G6x7uf3LWbCAwZQE9e8ZekMu5"}],
+    "instructions": [{"programId": "SMPLecH534NA9acpos4G6x7uf3LWbCAwZQE9e8ZekMu"}],
     "signature": "test123",
     "timestamp": 1711540000
   }'
