@@ -7,9 +7,11 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "pnpm --filter @stps/indexer dev",
-    "build": "pnpm --filter @stps/indexer build",
-    "test": "pnpm --filter @stps/indexer test"
+    "dev": "pnpm -r --parallel --stream dev",
+    "dev:indexer": "pnpm --filter @stps/indexer dev",
+    "dev:scoring": "pnpm --filter @stps/scoring dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test"
   },
   "devDependencies": {
     "turbo": "^2.5.0"
