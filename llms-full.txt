@@ -1,0 +1,179 @@
+# Intro (/docs)
+
+<div className="stps-docs-intro">
+  <strong>
+    Solana Trust Protocol Standard
+  </strong>
+
+  <span>
+    STPS assigns a Trust Score from 0 to 100 to DeFi protocols by reading governance,
+    asset legitimacy and latent permission signals before critical execution.
+  </span>
+</div>
+
+STPS exists because a blockchain transaction can be valid and still be unsafe. The protocol operates in that gap: validating risk, rule coherence and operational impact before a governance action, admin permission or critical transaction becomes irreversible.
+
+## MVP scope
+
+* Anchor program for protocol trust certificates.
+* TypeScript Scoring Engine for risk events and score calculation.
+* Indexer or event mock for Helius Webhook style inputs.
+* SDK for querying protocol scores.
+* Dashboard and docs for explaining certificate state, risk flags and score history.
+
+## Certificate model
+
+<div className="stps-certificate">
+  <div className="stps-certificate-row">
+    <span>
+      Protocol
+    </span>
+
+    <span>
+      dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH
+    </span>
+  </div>
+
+  <div className="stps-certificate-row">
+    <span>
+      Trust Score
+    </span>
+
+    <span>
+      42 / 100
+    </span>
+  </div>
+
+  <div className="stps-certificate-row">
+    <span>
+      Risk Level
+    </span>
+
+    <span>
+      High
+    </span>
+  </div>
+
+  <div className="stps-certificate-row">
+    <span>
+      Active Flags
+    </span>
+
+    <span>
+      TIMELOCK_REMOVED, MULTISIG_THRESHOLD_LOWERED, UNKNOWN_SIGNER_ADDED
+    </span>
+  </div>
+</div>
+
+## Demo chain of custody
+
+<div className="stps-risk-chain">
+  <div>
+    <strong>
+      85
+    </strong>
+
+    <span>
+      Baseline certificate issued for the protocol.
+    </span>
+
+    <em>
+      Low
+    </em>
+  </div>
+
+  <div>
+    <strong>
+      65
+    </strong>
+
+    <span>
+      <code>FLAG_TIMELOCK_REMOVED</code>
+
+       detected in a critical governance action.
+    </span>
+
+    <em>
+      Medium
+    </em>
+  </div>
+
+  <div>
+    <strong>
+      42
+    </strong>
+
+    <span>
+      Multisig threshold reduced from 5 to 1 and unknown signer added.
+    </span>
+
+    <em>
+      High
+    </em>
+  </div>
+</div>
+
+
+# Getting Started (/docs/getting-started)
+
+## What STPS validates
+
+STPS is not a wallet reputation score. It is a protocol trust layer for critical Solana operations:
+
+* Governance changes.
+* Administrative permissions.
+* Business rule updates.
+* Asset legitimacy.
+* Durable nonces and latent permissions.
+* Architectural risk inside DeFi protocols.
+
+## Initial architecture
+
+```txt
+Helius Webhooks
+  -> Indexer
+  -> Scoring Engine
+  -> Anchor Program
+  -> Dashboard + SDK
+```
+
+## Risk layers
+
+| Layer | Scope                   | Example                                    |
+| ----- | ----------------------- | ------------------------------------------ |
+| L1    | Governance Intelligence | Multisig threshold reduced from 5 to 1     |
+| L2    | Asset Legitimacy        | Low-liquidity collateral introduced        |
+| L3    | Durable Nonce Watchdog  | Suspicious pre-signed transaction detected |
+
+## Next pages to add
+
+* Local setup.
+* Scoring Engine API.
+* Anchor certificate account.
+* Indexer event contract.
+* SDK query examples.
+
+
+# Documentation Template (/docs/templates/documentation-template)
+
+## Purpose
+
+Describe what this page proves or enables.
+
+## Context
+
+Explain where this topic fits in the STPS architecture.
+
+## Contract
+
+List inputs, outputs, fields, flags or user-facing states.
+
+## Example
+
+```ts
+const certificate = await stps.getProtocolCertificate(protocolAddress);
+```
+
+## Validation
+
+Explain how someone can test or verify the behavior locally.
