@@ -1,0 +1,42 @@
+---
+title: Getting Started
+description: Initial structure for understanding and extending the STPS MVP.
+icon: BookOpen
+---
+
+## What STPS validates
+
+STPS is not a wallet reputation score. It is a protocol trust layer for critical Solana operations:
+
+- Governance changes.
+- Administrative permissions.
+- Business rule updates.
+- Asset legitimacy.
+- Durable nonces and latent permissions.
+- Architectural risk inside DeFi protocols.
+
+## Initial architecture
+
+```txt
+Helius Webhooks
+  -> Indexer
+  -> Scoring Engine
+  -> Anchor Program
+  -> Dashboard + SDK
+```
+
+## Risk layers
+
+| Layer | Scope | Example |
+| --- | --- | --- |
+| L1 | Governance Intelligence | Multisig threshold reduced from 5 to 1 |
+| L2 | Asset Legitimacy | Low-liquidity collateral introduced |
+| L3 | Durable Nonce Watchdog | Suspicious pre-signed transaction detected |
+
+## Next pages to add
+
+- Local setup.
+- Scoring Engine API.
+- Anchor certificate account.
+- Indexer event contract.
+- SDK query examples.

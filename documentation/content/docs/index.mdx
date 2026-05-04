@@ -1,0 +1,66 @@
+---
+title: Intro
+description: STPS is a trust validation layer for critical Solana protocol operations.
+icon: ShieldCheck
+---
+
+<div className="stps-docs-intro">
+  <strong>Solana Trust Protocol Standard</strong>
+  <span>
+    STPS assigns a Trust Score from 0 to 100 to DeFi protocols by reading governance,
+    asset legitimacy and latent permission signals before critical execution.
+  </span>
+</div>
+
+STPS exists because a blockchain transaction can be valid and still be unsafe. The protocol operates in that gap: validating risk, rule coherence and operational impact before a governance action, admin permission or critical transaction becomes irreversible.
+
+## MVP scope
+
+- Anchor program for protocol trust certificates.
+- TypeScript Scoring Engine for risk events and score calculation.
+- Indexer or event mock for Helius Webhook style inputs.
+- SDK for querying protocol scores.
+- Dashboard and docs for explaining certificate state, risk flags and score history.
+
+## Certificate model
+
+<div className="stps-certificate">
+  <div className="stps-certificate-row">
+    <span>Protocol</span>
+    <span>dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH</span>
+  </div>
+  <div className="stps-certificate-row">
+    <span>Trust Score</span>
+    <span>42 / 100</span>
+  </div>
+  <div className="stps-certificate-row">
+    <span>Risk Level</span>
+    <span>High</span>
+  </div>
+  <div className="stps-certificate-row">
+    <span>Active Flags</span>
+    <span>TIMELOCK_REMOVED, MULTISIG_THRESHOLD_LOWERED, UNKNOWN_SIGNER_ADDED</span>
+  </div>
+</div>
+
+## Demo chain of custody
+
+<div className="stps-risk-chain">
+  <div>
+    <strong>85</strong>
+    <span>Baseline certificate issued for the protocol.</span>
+    <em>Low</em>
+  </div>
+  <div>
+    <strong>65</strong>
+    <span><code>FLAG_TIMELOCK_REMOVED</code> detected in a critical governance action.</span>
+    <em>Medium</em>
+  </div>
+  <div>
+    <strong>42</strong>
+    <span>Multisig threshold reduced from 5 to 1 and unknown signer added.</span>
+    <em>High</em>
+  </div>
+</div>
+
+

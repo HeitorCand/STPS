@@ -1,0 +1,59 @@
+name: Deploy Documentation to GitHub Pages
+
+on:
+  push:
+    branches:
+      - feature/front
+  workflow_dispatch:
+
+concurrency:
+  group: pages-deployment
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy Documentation
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./documentation
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: documentation/package-lock.json
+
+      - name: Cache Build Folders
+        uses: actions/cache@v4
+        with:
+          path: |
+            documentation/.next
+            documentation/.source
+          key: documentation-build-${{ hashFiles('documentation/**/*', '!documentation/node_modules/**', '!documentation/.next/**', '!documentation/.source/**') }}
+          restore-keys: documentation-build-
+
+      - name: Install and Build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          NEXT_PUBLIC_BASE_PATH: /STPS
+        run: |
+          npm ci
+          npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: ./documentation/out
+          branch: gh-pages
+          force: false
