@@ -46,7 +46,7 @@ body {
   min-width: 320px;
   margin: 0;
   background:
-    radial-gradient(circle at 50% -10%, oklch(0.27 0.055 174 / 0.72), transparent 38rem),
+    linear-gradient(115deg, oklch(0.18 0.035 188), oklch(0.105 0.024 196) 38%, oklch(0.14 0.03 168)),
     var(--bg-deep);
 }
 

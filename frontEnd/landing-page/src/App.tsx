@@ -20,6 +20,12 @@ const riskEvents = [
   },
 ]
 
+const riskFlags = [
+  'FLAG_TIMELOCK_REMOVED',
+  'FLAG_MULTISIG_THRESHOLD_LOWERED',
+  'FLAG_UNKNOWN_SIGNER_ADDED',
+]
+
 const layers = [
   {
     id: 'L1',
@@ -48,9 +54,37 @@ const useCases = [
 ]
 
 const timeline = [
-  { time: '00:00', score: '85', label: 'Baseline certificate issued' },
-  { time: '11:06', score: '65', label: 'Multisig threshold reduced' },
-  { time: '23:00', score: '42', label: 'Timelock removed, signer added' },
+  { time: '00:00', score: '85', label: 'Baseline certificate issued', delta: 'baseline' },
+  { time: '11:06', score: '65', label: 'Multisig threshold reduced', delta: '-20' },
+  { time: '23:00', score: '42', label: 'Timelock removed, signer added', delta: '-23' },
+]
+
+const custodySteps = [
+  {
+    step: '01',
+    title: 'Helius Webhooks',
+    detail: 'Parsed governance and nonce events enter the pipeline.',
+  },
+  {
+    step: '02',
+    title: 'Indexer',
+    detail: 'Raw activity becomes normalized risk events.',
+  },
+  {
+    step: '03',
+    title: 'Scoring Engine',
+    detail: 'Flags, penalties and explanations produce the Trust Score.',
+  },
+  {
+    step: '04',
+    title: 'Anchor Program',
+    detail: 'The certificate is written on-chain for verification.',
+  },
+  {
+    step: '05',
+    title: 'Dashboard + SDK',
+    detail: 'Protocols, wallets and integrators read the same evidence.',
+  },
 ]
 
 function App() {
@@ -90,6 +124,10 @@ function App() {
         <div className="hero-layout">
           <div className="hero-content">
             <p className="eyebrow">Solana Trust Protocol Standard</p>
+            <div className="hero-stamp" aria-hidden="true">
+              <span>Valid</span>
+              <strong>is not safe</strong>
+            </div>
             <h1>Trust certificates for protocols before users take the risk.</h1>
             <p className="hero-copy">
               STPS scores DeFi protocols from 0 to 100 by watching governance,
@@ -107,9 +145,23 @@ function App() {
               <span>Protocol certificate</span>
               <strong>Devnet</strong>
             </div>
+            <div className="certificate-seal" aria-hidden="true">
+              <span>STPS</span>
+              <strong>Risk<br />attested</strong>
+            </div>
             <div className="certificate-meta">
               <span>protocol</span>
               <strong>dRiftyHA39MWEi3m9...cn33UH</strong>
+            </div>
+            <div className="certificate-fields" aria-label="Certificate metadata">
+              <span>
+                <small>Authority</small>
+                <strong>Scoring Engine</strong>
+              </span>
+              <span>
+                <small>Last update</small>
+                <strong>23:00 UTC</strong>
+              </span>
             </div>
             <div className="score-panel">
               <div>
@@ -134,26 +186,46 @@ function App() {
                 </li>
               ))}
             </ul>
+            <div className="flag-strip" aria-label="Active risk flags">
+              {riskFlags.map((flag) => (
+                <span key={flag}>{flag}</span>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="proof-strip" aria-label="STPS status metrics">
-        <div>
-          <strong>3</strong>
-          <span>risk layers</span>
+      <section className="custody-band" aria-label="STPS architecture chain of custody">
+        <div className="custody-heading">
+          <p className="eyebrow">Architecture</p>
+          <h2>Every score has a chain of custody.</h2>
         </div>
-        <div>
-          <strong>0-100</strong>
-          <span>trust range</span>
+        <div className="custody-rail">
+          {custodySteps.map((item) => (
+            <article className="custody-step" key={item.step}>
+              <span>{item.step}</span>
+              <strong>{item.title}</strong>
+              <p>{item.detail}</p>
+            </article>
+          ))}
         </div>
-        <div>
-          <strong>Devnet</strong>
-          <span>first target</span>
-        </div>
-        <div>
-          <strong>On-chain</strong>
-          <span>certificate record</span>
+        <div className="proof-strip" aria-label="STPS status metrics">
+          <div>
+            <strong>3</strong>
+            <span>risk layers</span>
+          </div>
+          <div>
+            <strong>0-100</strong>
+            <span>trust range</span>
+          </div>
+          <div>
+            <strong>Devnet</strong>
+            <span>first target</span>
+          </div>
+          <div>
+            <strong>On-chain</strong>
+            <span>certificate record</span>
+          </div>
         </div>
       </section>
 
@@ -207,6 +279,7 @@ function App() {
           {timeline.map((item) => (
             <article className="timeline-item" key={item.time}>
               <span>{item.time}</span>
+              <em>{item.delta}</em>
               <strong>{item.score}</strong>
               <p>{item.label}</p>
             </article>
