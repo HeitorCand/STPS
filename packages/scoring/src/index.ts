@@ -9,8 +9,8 @@ import { submitRegisterProtocol } from "./on-chain.js";
 import { initProtocol, listProtocols, getProtocol, hasProtocol } from "./store.js";
 import type { GovernanceEvent, ProtocolState } from "./types.js";
 
+export function buildScoringApp() {
 const app = express();
-const port = Number(process.env.PORT ?? 3001);
 
 app.use(express.json({ limit: "1mb" }));
 
@@ -197,11 +197,19 @@ function serializeProtocol(state: ProtocolState) {
 // Start
 // ----------------------------------------------------------------------------
 
-app.listen(port, () => {
-  logInfo("scoring_engine_started", {
-    port,
-    program_id: process.env.ANCHOR_PROGRAM_ID,
-    rpc: process.env.SOLANA_RPC_URL,
-    on_chain_disabled: (process.env.DISABLE_ON_CHAIN ?? "").toLowerCase() === "true",
+  return app;
+}
+
+// Só faz listen quando executado diretamente (não em testes)
+const isMain = process.argv[1]?.endsWith("index.ts") || process.argv[1]?.endsWith("index.js");
+if (isMain) {
+  const port = Number(process.env.PORT ?? 3001);
+  buildScoringApp().listen(port, () => {
+    logInfo("scoring_engine_started", {
+      port,
+      program_id: process.env.ANCHOR_PROGRAM_ID,
+      rpc: process.env.SOLANA_RPC_URL,
+      on_chain_disabled: (process.env.DISABLE_ON_CHAIN ?? "").toLowerCase() === "true",
+    });
   });
-});
+}
