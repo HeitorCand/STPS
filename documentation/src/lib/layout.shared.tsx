@@ -1,12 +1,23 @@
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
+import stpsLogo from "@/assets/stps_logo.svg";
+import stpsLogoLightMode from "@/assets/stps_logo_lightmode.svg";
 
 export function baseOptions(): BaseLayoutProps {
   return {
     nav: {
       title: (
-        <>
-          <img src="/stps_logo.svg" alt="STPS" className="stps-docs-logo" />
-        </>
+        <span className="stps-docs-logo-wrap" aria-label="STPS">
+          <img
+            src={stpsLogoLightMode.src}
+            alt=""
+            className="stps-docs-logo stps-docs-logo-light"
+          />
+          <img
+            src={stpsLogo.src}
+            alt=""
+            className="stps-docs-logo stps-docs-logo-dark"
+          />
+        </span>
       ),
     },
     links: [

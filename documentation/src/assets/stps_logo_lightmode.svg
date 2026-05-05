@@ -1,0 +1,19 @@
+<svg width="680" height="300" viewBox="0 0 680 300" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>STPS Logo Light Mode</title>
+<desc>Logo STPS versão colorida para fundo claro, fundo transparente.</desc>
+<g transform="translate(340,150)">
+  <g transform="translate(-195, 0)">
+    <polygon fill="#E8F9F3" points="0,-105 90.9,-52.5 90.9,52.5 0,105 -90.9,52.5 -90.9,-52.5"/>
+    <polygon fill="none" stroke="#1D9E75" stroke-width="3" points="0,-105 90.9,-52.5 90.9,52.5 0,105 -90.9,52.5 -90.9,-52.5"/>
+    <polygon fill="none" stroke="#5DCAA5" stroke-width="1.5" opacity="0.4" points="0,-80 69.3,-40 69.3,40 0,80 -69.3,40 -69.3,-40"/>
+    <circle fill="#1D9E75" cx="-36" cy="80" r="6"/>
+    <circle fill="#1D9E75" cx="-18" cy="88" r="6"/>
+    <circle fill="#1D9E75" cx="0"   cy="91" r="6"/>
+    <circle fill="#1D9E75" cx="18"  cy="88" r="6"/>
+    <circle fill="#9FE1CB" cx="36"  cy="80" r="6"/>
+  </g>
+  <line stroke="#5DCAA5" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" x1="-60" y1="-80" x2="-60" y2="80"/>
+  <text font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="90" font-weight="500" letter-spacing="-2" fill="#1D9E75" x="-36" y="34" text-anchor="start">STPS</text>
+  <text font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="16" font-weight="400" letter-spacing="5" fill="#5DCAA5" x="-34" y="70" text-anchor="start">TRUST PROTOCOL</text>
+</g>
+</svg>

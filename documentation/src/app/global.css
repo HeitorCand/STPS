@@ -3,6 +3,35 @@
 @import "fumadocs-ui/css/preset.css";
 
 :root {
+  color-scheme: light;
+  --stps-bg: oklch(0.965 0.012 178);
+  --stps-bg-deep: oklch(0.935 0.018 184);
+  --stps-surface: oklch(0.985 0.008 176);
+  --stps-surface-raised: oklch(0.958 0.015 176);
+  --stps-text-strong: oklch(0.235 0.036 190);
+  --stps-text: oklch(0.36 0.03 188);
+  --stps-text-muted: oklch(0.52 0.028 186);
+  --stps-border: oklch(0.72 0.034 181 / 0.7);
+  --stps-border-soft: oklch(0.78 0.028 181 / 0.55);
+  --stps-accent: oklch(0.55 0.105 174);
+  --stps-accent-strong: oklch(0.44 0.09 174);
+  --stps-warning: oklch(0.56 0.13 76);
+  --stps-danger: oklch(0.55 0.155 28);
+  --stps-danger-soft: oklch(0.92 0.052 28 / 0.62);
+  --stps-page-bg:
+    linear-gradient(115deg, oklch(0.965 0.014 178), oklch(0.93 0.018 190) 48%, oklch(0.952 0.015 155)),
+    var(--stps-bg-deep);
+  --stps-intro-bg:
+    linear-gradient(90deg, oklch(0.78 0.08 174 / 0.2), transparent 44%),
+    oklch(0.985 0.008 176 / 0.96);
+  --stps-certificate-bg: oklch(0.985 0.008 176 / 0.94);
+  --stps-risk-row-bg: oklch(0.965 0.012 178 / 0.92);
+  --stps-shadow: 0 24px 70px oklch(0.62 0.035 188 / 0.22);
+  --stps-radius: 12px;
+}
+
+.dark {
+  color-scheme: dark;
   --stps-bg: oklch(0.145 0.028 191);
   --stps-bg-deep: oklch(0.105 0.024 196);
   --stps-surface: oklch(0.19 0.026 190);
@@ -17,19 +46,25 @@
   --stps-warning: oklch(0.79 0.15 76);
   --stps-danger: oklch(0.7 0.17 28);
   --stps-danger-soft: oklch(0.39 0.095 28 / 0.34);
-  --stps-radius: 12px;
+  --stps-page-bg:
+    linear-gradient(115deg, oklch(0.18 0.035 188), oklch(0.105 0.024 196) 44%, oklch(0.14 0.03 168)),
+    var(--stps-bg-deep);
+  --stps-intro-bg:
+    linear-gradient(90deg, oklch(0.3 0.05 176 / 0.18), transparent 42%),
+    oklch(0.135 0.025 194 / 0.92);
+  --stps-certificate-bg: oklch(0.18 0.026 190 / 0.86);
+  --stps-risk-row-bg: oklch(0.16 0.024 193 / 0.78);
+  --stps-shadow: 0 28px 80px oklch(0.06 0.018 196 / 0.34);
 }
 
-html {
+html.dark {
   color-scheme: dark;
 }
 
 body {
   min-width: 320px;
   color: var(--stps-text);
-  background:
-    linear-gradient(115deg, oklch(0.18 0.035 188), oklch(0.105 0.024 196) 44%, oklch(0.14 0.03 168)),
-    var(--stps-bg-deep);
+  background: var(--stps-page-bg);
   font-family: Sora, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -47,11 +82,30 @@ samp {
   color: var(--stps-text-strong);
 }
 
+.stps-docs-logo-wrap {
+  display: inline-flex;
+  align-items: center;
+  width: 128px;
+  min-height: 44px;
+}
+
 .stps-docs-logo {
   width: 128px;
   height: auto;
   max-height: 44px;
   object-fit: contain;
+}
+
+.stps-docs-logo-dark {
+  display: none;
+}
+
+.dark .stps-docs-logo-light {
+  display: none;
+}
+
+.dark .stps-docs-logo-dark {
+  display: block;
 }
 
 .stps-docs-intro {
@@ -61,10 +115,8 @@ samp {
   padding: clamp(18px, 4vw, 28px);
   border: 1px solid var(--stps-border);
   border-radius: var(--stps-radius);
-  background:
-    linear-gradient(90deg, oklch(0.3 0.05 176 / 0.18), transparent 42%),
-    oklch(0.135 0.025 194 / 0.92);
-  box-shadow: 0 28px 80px oklch(0.06 0.018 196 / 0.34);
+  background: var(--stps-intro-bg);
+  box-shadow: var(--stps-shadow);
 }
 
 .stps-docs-intro strong {
@@ -78,7 +130,7 @@ samp {
   padding: 18px;
   border: 1px solid var(--stps-border-soft);
   border-radius: var(--stps-radius);
-  background: oklch(0.18 0.026 190 / 0.86);
+  background: var(--stps-certificate-bg);
 }
 
 .stps-certificate-row {
@@ -122,7 +174,7 @@ samp {
   padding: 12px 14px;
   border: 1px solid var(--stps-border-soft);
   border-radius: 10px;
-  background: oklch(0.16 0.024 193 / 0.78);
+  background: var(--stps-risk-row-bg);
 }
 
 .stps-risk-chain strong {
