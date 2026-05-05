@@ -7,11 +7,26 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "pnpm --filter @stps/indexer dev",
-    "build": "pnpm --filter @stps/indexer build",
-    "test": "pnpm --filter @stps/indexer test"
+    "dev": "pnpm -r --parallel --stream dev",
+    "dev:indexer": "pnpm --filter @stps/indexer dev",
+    "dev:scoring": "pnpm --filter @stps/scoring dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test"
   },
   "devDependencies": {
-    "turbo": "^2.5.0"
+    "@types/chai": "^5.2.3",
+    "@types/mocha": "^10.0.10",
+    "chai": "^6.2.2",
+    "ts-mocha": "^11.1.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "turbo": "^2.5.0",
+    "vitest": "^4.1.5"
+  },
+  "ts-node": {
+    "transpileOnly": true,
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
   }
 }

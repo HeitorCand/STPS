@@ -10,8 +10,8 @@ import { parseSplGovernanceTransaction } from "./parsers/spl-governance.js";
 import { parseSquadsTransaction } from "./parsers/squads.js";
 import type { GovernanceEvent, HeliusWebhookPayload } from "./types.js";
 
+export function buildIndexerApp() {
 const app = express();
-const port = Number(process.env.PORT ?? 3000);
 
 app.use(express.json({ limit: "1mb" }));
 
@@ -71,6 +71,9 @@ app.post("/webhook/governance", async (req: Request, res: Response) => {
   }
 });
 
+  return app;
+}
+
 export function parseGovernanceEvent(payload: HeliusWebhookPayload): GovernanceEvent | null {
   return (
     parseSquadsTransaction(payload) ??
@@ -91,6 +94,11 @@ function isAuthorizedWebhook(req: Request): boolean {
   return receivedSecret === expectedSecret;
 }
 
-app.listen(port, () => {
-  logInfo("indexer_started", { port });
-});
+// Só faz listen quando executado diretamente (não em testes)
+const isMain = process.argv[1]?.endsWith("index.ts") || process.argv[1]?.endsWith("index.js");
+if (isMain) {
+  const port = Number(process.env.PORT ?? 3000);
+  buildIndexerApp().listen(port, () => {
+    logInfo("indexer_started", { port });
+  });
+}
