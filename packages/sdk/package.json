@@ -1,0 +1,27 @@
+{
+  "name": "stps-sdk",
+  "version": "0.1.1",
+  "description": "TypeScript SDK for the Solana Trust Protocol Standard (STPS)",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "vitest run --pool=forks"
+  },
+  "keywords": ["solana", "defi", "trust-score", "governance", "stps"],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.8"
+  }
+}
