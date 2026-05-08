@@ -1,0 +1,30 @@
+app = "stps-scoring"
+primary_region = "gru"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "3001"
+  SOLANA_RPC_URL = "https://api.devnet.solana.com"
+  ANCHOR_PROGRAM_ID = "FuAM2peBxYQgr4Sspd43FkYK7vuCZ5rTPxZYCnCSeCZk"
+  DISABLE_ON_CHAIN = "false"
+  DEFI_LLAMA_BASE_URL = "https://api.llama.fi"
+  DEFI_LLAMA_CACHE_TTL_SECONDS = "60"
+  PROTOCOL_DEFILLAMA_MAP = "{\"dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH\":\"drift\"}"
+  PROTOCOL_ADMIN_KEYS_MAP = "{}"
+  DEFAULT_INITIAL_SCORE = "85"
+  # SCORING_AUTHORITY_KEYPAIR deve ser configurado via:
+  # fly secrets set SCORING_AUTHORITY_KEYPAIR='[12,34,56,...]'
+
+[http_service]
+  internal_port = 3001
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1

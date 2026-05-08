@@ -1,0 +1,24 @@
+app = "stps-indexer"
+primary_region = "gru"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "3000"
+  # SCORING_ENGINE_URL e HELIUS_API_KEY devem ser configurados via:
+  # fly secrets set SCORING_ENGINE_URL=https://stps-scoring.fly.dev
+  # fly secrets set HELIUS_API_KEY=sua_key
+  # fly secrets set HELIUS_WEBHOOK_SECRET=seu_secret
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1
