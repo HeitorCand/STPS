@@ -20,6 +20,7 @@ build/
 # ── Environment files (NEVER commit secrets) ────────────────
 .env
 .env.local
+.env.bak
 .env.*.local
 # allow example files
 !.env.example
