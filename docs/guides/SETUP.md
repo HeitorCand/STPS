@@ -277,3 +277,110 @@ Verifique:
 2. `SCORING_AUTHORITY_KEYPAIR` é o mesmo keypair que foi declarado como authority no `register_protocol`
 3. A variação do score é `≥ 5` pontos
 4. O Scoring Engine tem SOL para pagar a transação (verificar endereço da authority)
+
+---
+
+## Ambiente de Produção (Railway)
+
+### Serviços deployados
+
+| Serviço | URL |
+| :--- | :--- |
+| Indexer | `https://stps-indexer-production.up.railway.app` |
+| Scoring Engine | `https://stps-scoring-production.up.railway.app` |
+
+### Smart Contract
+
+| Campo | Valor |
+| :--- | :--- |
+| Program ID | `FuAM2peBxYQgr4Sspd43FkYK7vuCZ5rTPxZYCnCSeCZk` |
+| Rede | Solana Devnet |
+| Scoring Authority | `CZWj6oTj4H2ccr4uHwg1wBTzmfFwZ7qfrXSjJtgVN3pd` |
+
+### Helius
+
+O webhook está configurado no devnet monitorando:
+
+| Program | ID |
+| :--- | :--- |
+| Squads | `SMPLecH534NA9acpos4G6x7uf3LWbCAwZQE9e8ZekMu` |
+| SPL Governance | `GovER5Lthms3bLBqWub97yVrMmEogzX7xNjdXpPPCVZw` |
+| System Program (Nonce) | `11111111111111111111111111111111` |
+
+Webhook URL: `https://stps-indexer-production.up.railway.app/webhook/governance`
+
+---
+
+## Testar o ambiente de produção
+
+### 1. Health check
+
+```bash
+curl -s https://stps-indexer-production.up.railway.app/health
+curl -s https://stps-scoring-production.up.railway.app/health
+```
+
+### 2. Evento de teste via script
+
+```bash
+bash scripts/test-webhook.sh
+```
+
+O script injeta um `MULTISIG_THRESHOLD_CHANGED` no Indexer e exibe o score resultante.
+
+### 3. Verificar score do Drift
+
+```bash
+curl -s https://stps-scoring-production.up.railway.app/api/score/dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH
+```
+
+### 4. Listar protocolos rastreados
+
+```bash
+curl -s https://stps-scoring-production.up.railway.app/api/protocols
+```
+
+---
+
+## Re-deploy após mudanças
+
+Pré-requisito: Railway CLI instalado e autenticado.
+
+```bash
+npm install -g @railway/cli
+railway login
+railway link --project b60e9930-c972-4680-8a93-d8aa49abb85d
+```
+
+Re-deploy:
+
+```bash
+railway up packages/scoring --path-as-root --service stps-scoring
+railway up packages/indexer --path-as-root --service stps-indexer
+```
+
+Ver logs:
+
+```bash
+railway logs --service stps-scoring
+railway logs --service stps-indexer
+```
+
+Atualizar variável:
+
+```bash
+railway variable set NOME=valor --service stps-scoring
+railway variable set NOME=valor --service stps-indexer
+```
+
+### Gerar nova Scoring Authority Keypair
+
+```bash
+node packages/scoring/scripts/generate-keypair.mjs
+```
+
+O script imprime a pubkey e o `SCORING_AUTHORITY_KEYPAIR`. Após gerar:
+
+1. Cole o valor no `packages/scoring/.env` (nunca no `.env.example`)
+2. Faça airdrop em `https://faucet.solana.com`
+3. Atualize no Railway: `railway variable set SCORING_AUTHORITY_KEYPAIR='[...]' --service stps-scoring`
