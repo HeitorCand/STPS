@@ -1,29 +1,31 @@
 import type {
+  ClaimedProtocol,
   FlagName,
   ProtocolListResponse,
   RiskLevel,
   ScoreHistoryEntry,
   StpsApiError as StpsApiErrorType,
   StpsClientOptions,
+  StpsProfileResponse,
   TrustScoreResponse,
+  VerificationMethod,
 } from "./types.js";
 
 export { StpsApiError } from "./types.js";
 export type {
+  ClaimedProtocol,
+  ClaimStatus,
   FlagName,
-  LayerStatus,
   ProtocolListResponse,
   RiskLevel,
   ScoreHistoryEntry,
   StpsClientOptions,
+  StpsProfileResponse,
   TrustScoreResponse,
+  VerificationMethod,
 } from "./types.js";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Internal helpers
-// ─────────────────────────────────────────────────────────────────────────────
-
-const DEFAULT_API_URL = "http://localhost:3001";
+const DEFAULT_API_URL = "https://stps-scoring-production.up.railway.app";
 const DEFAULT_TIMEOUT_MS = 10_000;
 
 async function fetchWithTimeout(
@@ -41,47 +43,54 @@ async function fetchWithTimeout(
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// StpsClient
-// ─────────────────────────────────────────────────────────────────────────────
-
 /**
- * Client for the STPS (Solana Trust Protocol Standard) Scoring Engine.
+ * Authenticated client for the STPS Scoring Engine.
+ *
+ * This client reads only the protocols bound to the current STPS account.
  *
  * @example
  * ```typescript
- * import { StpsClient } from "@stps/sdk";
+ * import { StpsClient } from "stps-sdk";
  *
- * const client = new StpsClient({ apiUrl: "https://stps-scoring.fly.dev" });
+ * const client = new StpsClient({
+ *   token: process.env.STPS_API_TOKEN!,
+ * });
  *
- * const score = await client.getScore("dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH");
- * console.log(score.currentScore);  // 42
- * console.log(score.riskLevel);     // "Critical"
- * console.log(score.activeFlags);   // ["FLAG_TIMELOCK_REMOVED", "FLAG_MULTISIG_THRESHOLD_LOWERED"]
+ * const { protocols } = await client.getProtocols();
+ * console.log(protocols.map((item) => item.protocolAddress));
  * ```
  */
 export class StpsClient {
   private readonly apiUrl: string;
   private readonly timeoutMs: number;
   private readonly fetchFn: typeof fetch;
+  private readonly token: string;
 
-  constructor(options: StpsClientOptions = {}) {
+  constructor(options: StpsClientOptions) {
+    if (!options?.token?.trim()) {
+      throw new Error("STPS SDK: token is required");
+    }
+
     this.apiUrl = (options.apiUrl ?? DEFAULT_API_URL).replace(/\/$/, "");
     this.timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
     this.fetchFn = options.fetchFn ?? globalThis.fetch.bind(globalThis);
+    this.token = options.token;
   }
-
-  // ── Core request helper ────────────────────────────────────────────────────
 
   private async request<T>(path: string): Promise<T> {
     const url = `${this.apiUrl}${path}`;
     let response: Response;
 
     try {
-      response = await fetchWithTimeout(this.fetchFn, url, this.timeoutMs);
+      response = await fetchWithTimeout(this.fetchFn, url, this.timeoutMs, {
+        headers: {
+          "X-STPS-Token": this.token,
+          "Content-Type": "application/json",
+        },
+      });
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
-      throw new Error(`STPS SDK: network error fetching ${url} — ${msg}`);
+      throw new Error(`STPS SDK: network error fetching ${url} - ${msg}`);
     }
 
     const body: unknown = await response.json().catch(() => null);
@@ -98,70 +107,65 @@ export class StpsClient {
     return body as T;
   }
 
-  // ── Public API ─────────────────────────────────────────────────────────────
-
   /**
-   * Fetch the current trust score for a single protocol.
-   *
-   * @param protocolAddress - The protocol's Solana public key (base58).
-   * @throws {StpsApiError} If the protocol is not found (404) or request fails.
-   *
-   * @example
-   * ```typescript
-   * const score = await client.getScore("dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH");
-   * if (score.riskLevel === "Critical") {
-   *   console.warn("⚠️ Protocol at critical risk!");
-   * }
-   * ```
+   * Fetch the authenticated STPS profile tied to the current token.
    */
-  async getScore(protocolAddress: string): Promise<TrustScoreResponse> {
-    return this.request<TrustScoreResponse>(`/api/score/${encodeURIComponent(protocolAddress)}`);
+  async getProfile(): Promise<StpsProfileResponse> {
+    return this.request<StpsProfileResponse>("/api/me");
   }
 
   /**
-   * Fetch the full score history for a protocol.
-   * Returns the `history` array from the score response.
-   *
-   * @param protocolAddress - The protocol's Solana public key (base58).
-   *
-   * @example
-   * ```typescript
-   * const history = await client.getHistory("dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH");
-   * // history = [{ timestamp, score, reason }, ...]
-   * ```
-   */
-  async getHistory(protocolAddress: string): Promise<ScoreHistoryEntry[]> {
-    const response = await this.getScore(protocolAddress);
-    return response.history;
-  }
-
-  /**
-   * Fetch all tracked protocols and their current scores.
-   *
-   * @example
-   * ```typescript
-   * const { protocols } = await client.getProtocols();
-   * protocols.forEach(p => console.log(p.protocolAddress, p.currentScore));
-   * ```
+   * Fetch all protocols claimed by the authenticated account.
    */
   async getProtocols(): Promise<ProtocolListResponse> {
-    return this.request<ProtocolListResponse>("/api/protocols");
+    return this.request<ProtocolListResponse>("/api/me/protocols");
+  }
+
+  /**
+   * Fetch one claimed protocol by protocol address.
+   *
+   * Throws `StpsApiError(404)` when the protocol is not attached to the current account.
+   */
+  async getProtocol(protocolAddress: string): Promise<ClaimedProtocol> {
+    const { protocols } = await this.getProtocols();
+    const claimed = protocols.find((item) => item.protocolAddress === protocolAddress);
+
+    if (!claimed) {
+      const { StpsApiError } = await import("./types.js");
+      throw new StpsApiError(
+        404,
+        { status: "not_found", protocolAddress },
+        `STPS API returned 404 for claimed protocol ${protocolAddress}`,
+      ) as StpsApiErrorType;
+    }
+
+    return claimed;
+  }
+
+  /**
+   * Fetch the current trust score for a protocol already claimed by the authenticated account.
+   */
+  async getScore(protocolAddress: string): Promise<TrustScoreResponse> {
+    const claimed = await this.getProtocol(protocolAddress);
+    return claimed.protocol;
+  }
+
+  /**
+   * Fetch the full score history for a claimed protocol.
+   */
+  async getHistory(protocolAddress: string): Promise<ScoreHistoryEntry[]> {
+    const score = await this.getScore(protocolAddress);
+    return score.history;
   }
 
   /**
    * Check if the Scoring Engine is reachable.
    *
-   * @returns `true` if the health endpoint responds with `{ status: "ok" }`.
-   *
-   * @example
-   * ```typescript
-   * const ok = await client.isHealthy();
-   * if (!ok) console.error("Scoring Engine is down");
-   * ```
+   * Uses the authenticated `/api/me` route to ensure both API availability and token validity.
    */
   async isHealthy(): Promise<boolean> {
     try {
-      const body = await this.request<{ status: string }>("/health");
+      const body = await this.getProfile();
       return body.status === "ok";
     } catch {
       return false;
@@ -169,29 +173,13 @@ export class StpsClient {
   }
 
   /**
-   * Subscribe to score changes for a protocol using polling.
+   * Subscribe to score changes for a claimed protocol using polling.
    *
-   * Calls `onUpdate` every `intervalMs` milliseconds when the score changes.
-   * Returns a `stop` function to cancel the subscription.
-   *
-   * @param protocolAddress - The protocol to watch.
-   * @param onUpdate - Called with the new score whenever it changes.
-   * @param options.intervalMs - Polling interval. Default: 5000ms.
-   * @param options.onError - Optional error handler. Default: logs to console.
-   *
-   * @example
-   * ```typescript
-   * const stop = client.subscribeToAlerts("dRiftyHA39...", (score) => {
-   *   console.log("New score:", score.currentScore, score.riskLevel);
-   * });
-   *
-   * // Later:
-   * stop();
-   * ```
+   * Calls `onUpdate` whenever the score, flags or verification method changes.
    */
   subscribeToAlerts(
     protocolAddress: string,
-    onUpdate: (score: TrustScoreResponse) => void,
+    onUpdate: (protocol: ClaimedProtocol) => void,
     options: {
       intervalMs?: number;
       onError?: (error: Error) => void;
@@ -204,25 +192,34 @@ export class StpsClient {
 
     let lastScore: number | null = null;
     let lastFlags: string | null = null;
+    let lastVerification: VerificationMethod | undefined;
     let stopped = false;
 
     const poll = async () => {
       if (stopped) return;
-      try {
-        const score = await this.getScore(protocolAddress);
-        const flagsKey = score.activeFlags.slice().sort().join(",");
 
-        if (score.currentScore !== lastScore || flagsKey !== lastFlags) {
-          lastScore = score.currentScore;
+      try {
+        const protocol = await this.getProtocol(protocolAddress);
+        const flagsKey = protocol.protocol.activeFlags
+          .slice()
+          .sort()
+          .join(",") as string;
+
+        if (
+          protocol.protocol.currentScore !== lastScore ||
+          flagsKey !== lastFlags ||
+          protocol.verificationMethod !== lastVerification
+        ) {
+          lastScore = protocol.protocol.currentScore;
           lastFlags = flagsKey;
-          onUpdate(score);
+          lastVerification = protocol.verificationMethod;
+          onUpdate(protocol);
         }
       } catch (error) {
         onError(error instanceof Error ? error : new Error(String(error)));
       }
     };
 
-    // Run immediately then on interval
     void poll();
     const timer = setInterval(() => void poll(), intervalMs);
 

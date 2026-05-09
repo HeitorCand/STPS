@@ -10,18 +10,23 @@ import { activeFlagNames } from "./flags.js";
 import { logError, logInfo } from "./logger.js";
 import {
   consumeChallenge,
+  createApiToken,
   createAuthChallenge,
   createProtocolClaim,
   createSession,
   findClaimByProtocolAddress,
   findOrCreateUserByWallet,
   getActiveChallenge,
+  getApiTokenByToken,
   getClaimByIdForUser,
   getSessionByToken,
   getUserById,
   getUserClaims,
+  listApiTokensForUser,
+  revokeApiTokenForUser,
   revokeSession,
   updateClaimVerification,
+  type ApiTokenRecord,
   type ProtocolClaimRecord,
   type SessionRecord,
   type UserRecord,
@@ -34,6 +39,7 @@ import type { GovernanceEvent, ProtocolState } from "./types.js";
 
 type AuthenticatedRequest = Request & {
   session?: SessionRecord;
+  apiToken?: ApiTokenRecord;
   user?: UserRecord;
 };
 
@@ -81,12 +87,27 @@ const verifyProtocolSchema = z.object({
   signature: z.string().min(16),
 });
 
-function getAuthorizationToken(req: Request): string | null {
+const createApiTokenSchema = z.object({
+  label: z.string().trim().min(1).max(80).optional(),
+});
+
+function getSessionAuthorizationToken(req: Request): string | null {
   const header = req.header("authorization");
   if (!header) return null;
   const [scheme, token] = header.split(/\s+/);
   if (scheme?.toLowerCase() !== "bearer" || !token) return null;
   return token;
+}
+
+function getApiAccessToken(req: Request): string | null {
+  const explicit = req.header("x-stps-token");
+  if (explicit?.trim()) return explicit.trim();
+
+  const header = req.header("authorization");
+  if (!header) return null;
+  const [scheme, token] = header.split(/\s+/);
+  if (scheme?.toLowerCase() === "token" && token) return token;
+  return null;
 }
 
 async function authenticate(req: AuthenticatedRequest, res: Response): Promise<boolean> {
@@ -95,14 +116,33 @@ async function authenticate(req: AuthenticatedRequest, res: Response): Promise<b
     return false;
   }
 
-  const token = getAuthorizationToken(req);
-  if (!token) {
-    res.status(401).json({ status: "unauthorized" });
-    return false;
-  }
-
   try {
-    const session = await getSessionByToken(token);
+    const apiTokenValue = getApiAccessToken(req);
+    if (apiTokenValue) {
+      const apiToken = await getApiTokenByToken(apiTokenValue);
+      if (!apiToken) {
+        res.status(401).json({ status: "unauthorized" });
+        return false;
+      }
+
+      const user = await getUserById(apiToken.userId);
+      if (!user) {
+        res.status(401).json({ status: "unauthorized" });
+        return false;
+      }
+
+      req.apiToken = apiToken;
+      req.user = user;
+      return true;
+    }
+
+    const sessionToken = getSessionAuthorizationToken(req);
+    if (!sessionToken) {
+      res.status(401).json({ status: "unauthorized" });
+      return false;
+    }
+
+    const session = await getSessionByToken(sessionToken);
     if (!session) {
       res.status(401).json({ status: "unauthorized" });
       return false;
@@ -188,6 +228,16 @@ function serializeClaim(claim: ProtocolClaimRecord) {
   };
 }
 
+function serializeApiToken(record: ApiTokenRecord) {
+  return {
+    id: record.id,
+    label: record.label,
+    createdAt: record.createdAt,
+    lastUsedAt: record.lastUsedAt,
+    revokedAt: record.revokedAt,
+  };
+}
+
 export function buildScoringApp() {
   const app = express();
 
@@ -206,7 +256,7 @@ export function buildScoringApp() {
     }
 
     res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization,X-STPS-Token");
 
     if (req.method === "OPTIONS") {
       res.status(204).end();
@@ -439,11 +489,21 @@ export function buildScoringApp() {
         id: req.user!.id,
         primaryWalletAddress: req.user!.primaryWalletAddress,
       },
-      session: {
-        id: req.session!.id,
-        walletAddress: req.session!.walletAddress,
-        expiresAt: req.session!.expiresAt,
-      },
+      session: req.session
+        ? {
+            id: req.session.id,
+            walletAddress: req.session.walletAddress,
+            expiresAt: req.session.expiresAt,
+          }
+        : null,
+      apiToken: req.apiToken
+        ? {
+            id: req.apiToken.id,
+            label: req.apiToken.label,
+            createdAt: req.apiToken.createdAt,
+            lastUsedAt: req.apiToken.lastUsedAt,
+          }
+        : null,
     });
   });
 
@@ -451,11 +511,79 @@ export function buildScoringApp() {
     if (!(await authenticate(req, res))) return;
 
     try {
-      const token = getAuthorizationToken(req);
+      const token = getSessionAuthorizationToken(req);
       if (token) await revokeSession(token);
       res.json({ status: "ok" });
     } catch (error) {
       logError("logout_failed", error);
+      res.status(500).json({ status: "error" });
+    }
+  });
+
+  app.get("/api/me/tokens", async (req: AuthenticatedRequest, res: Response) => {
+    if (!(await authenticate(req, res))) return;
+
+    try {
+      const apiTokens = await listApiTokensForUser(req.user!.id);
+      res.json({
+        status: "ok",
+        count: apiTokens.length,
+        tokens: apiTokens.map(serializeApiToken),
+      });
+    } catch (error) {
+      logError("list_api_tokens_failed", error, { user_id: req.user!.id });
+      res.status(500).json({ status: "error" });
+    }
+  });
+
+  app.post("/api/me/tokens", async (req: AuthenticatedRequest, res: Response) => {
+    if (!(await authenticate(req, res))) return;
+    if (!req.session) {
+      res.status(401).json({ status: "session_required" });
+      return;
+    }
+
+    try {
+      const body = createApiTokenSchema.parse(req.body ?? {});
+      const created = await createApiToken({
+        userId: req.user!.id,
+        label: body.label,
+      });
+
+      res.json({
+        status: "ok",
+        token: created.token,
+        apiToken: serializeApiToken(created.apiToken),
+      });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ status: "invalid_payload", issues: error.issues });
+        return;
+      }
+      logError("create_api_token_failed", error, { user_id: req.user!.id });
+      res.status(500).json({ status: "error" });
+    }
+  });
+
+  app.delete("/api/me/tokens/:tokenId", async (req: AuthenticatedRequest, res: Response) => {
+    if (!(await authenticate(req, res))) return;
+    if (!req.session) {
+      res.status(401).json({ status: "session_required" });
+      return;
+    }
+
+    try {
+      const tokenId = String(req.params.tokenId ?? "");
+      await revokeApiTokenForUser({
+        userId: req.user!.id,
+        apiTokenId: tokenId,
+      });
+      res.json({ status: "ok" });
+    } catch (error) {
+      logError("revoke_api_token_failed", error, {
+        user_id: req.user!.id,
+        token_id: String(req.params.tokenId ?? ""),
+      });
       res.status(500).json({ status: "error" });
     }
   });
@@ -478,6 +606,10 @@ export function buildScoringApp() {
 
   app.post("/api/me/protocols/claim", async (req: AuthenticatedRequest, res: Response) => {
     if (!(await authenticate(req, res))) return;
+    if (!req.session) {
+      res.status(401).json({ status: "session_required" });
+      return;
+    }
 
     try {
       const body = claimProtocolSchema.parse(req.body);
@@ -529,6 +661,10 @@ export function buildScoringApp() {
     "/api/me/protocols/:claimId/verification/challenge",
     async (req: AuthenticatedRequest, res: Response) => {
       if (!(await authenticate(req, res))) return;
+      if (!req.session) {
+        res.status(401).json({ status: "session_required" });
+        return;
+      }
 
       try {
         const claimId = String(req.params.claimId ?? "");
@@ -576,6 +712,10 @@ export function buildScoringApp() {
     "/api/me/protocols/:claimId/verification/verify",
     async (req: AuthenticatedRequest, res: Response) => {
       if (!(await authenticate(req, res))) return;
+      if (!req.session) {
+        res.status(401).json({ status: "session_required" });
+        return;
+      }
 
       try {
         const body = verifyProtocolSchema.parse(req.body);

@@ -37,6 +37,16 @@ create table if not exists public.sessions (
   revoked_at timestamptz
 );
 
+create table if not exists public.api_tokens (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.users(id) on delete cascade,
+  label text,
+  token_hash text not null unique,
+  created_at timestamptz not null default timezone('utc', now()),
+  last_used_at timestamptz,
+  revoked_at timestamptz
+);
+
 create table if not exists public.protocol_claims (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.users(id) on delete cascade,
@@ -56,6 +66,8 @@ create index if not exists idx_wallet_identities_user_id on public.wallet_identi
 create index if not exists idx_auth_challenges_wallet_address on public.auth_challenges(wallet_address);
 create index if not exists idx_sessions_user_id on public.sessions(user_id);
 create index if not exists idx_sessions_token_hash on public.sessions(token_hash);
+create index if not exists idx_api_tokens_user_id on public.api_tokens(user_id);
+create index if not exists idx_api_tokens_token_hash on public.api_tokens(token_hash);
 create index if not exists idx_protocol_claims_user_id on public.protocol_claims(user_id);
 
 create or replace function public.touch_updated_at()

@@ -32,6 +32,16 @@ export interface SessionRecord {
   revokedAt: string | null;
 }
 
+export interface ApiTokenRecord {
+  id: string;
+  userId: string;
+  label: string | null;
+  tokenHash: string;
+  createdAt: string;
+  lastUsedAt: string | null;
+  revokedAt: string | null;
+}
+
 export interface ProtocolClaimRecord {
   id: string;
   userId: string;
@@ -71,6 +81,16 @@ type DbSession = {
   token_hash: string;
   created_at: string;
   expires_at: string;
+  revoked_at: string | null;
+};
+
+type DbApiToken = {
+  id: string;
+  user_id: string;
+  label: string | null;
+  token_hash: string;
+  created_at: string;
+  last_used_at: string | null;
   revoked_at: string | null;
 };
 
@@ -122,6 +142,18 @@ function mapSession(row: DbSession): SessionRecord {
   };
 }
 
+function mapApiToken(row: DbApiToken): ApiTokenRecord {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    label: row.label,
+    tokenHash: row.token_hash,
+    createdAt: row.created_at,
+    lastUsedAt: row.last_used_at,
+    revokedAt: row.revoked_at,
+  };
+}
+
 function mapClaim(row: DbClaim): ProtocolClaimRecord {
   return {
     id: row.id,
@@ -145,6 +177,10 @@ export function hashSessionToken(token: string): string {
 
 export function createOpaqueSessionToken(): string {
   return crypto.randomBytes(32).toString("base64url");
+}
+
+export function createApiAccessTokenValue(): string {
+  return `stps_${crypto.randomBytes(32).toString("base64url")}`;
 }
 
 export async function createAuthChallenge(args: {
@@ -310,6 +346,79 @@ export async function revokeSession(token: string): Promise<void> {
     .from("sessions")
     .update({ revoked_at: new Date().toISOString() })
     .eq("token_hash", tokenHash);
+
+  if (error) throw error;
+}
+
+export async function createApiToken(args: {
+  userId: string;
+  label?: string | null;
+}): Promise<{ token: string; apiToken: ApiTokenRecord }> {
+  const supabase = getSupabase();
+  const token = createApiAccessTokenValue();
+  const tokenHash = hashSessionToken(token);
+
+  const { data, error } = await supabase
+    .from("api_tokens")
+    .insert({
+      user_id: args.userId,
+      label: args.label ?? null,
+      token_hash: tokenHash,
+    })
+    .select("*")
+    .single<DbApiToken>();
+
+  if (error) throw error;
+  return { token, apiToken: mapApiToken(data) };
+}
+
+export async function getApiTokenByToken(token: string): Promise<ApiTokenRecord | null> {
+  const supabase = getSupabase();
+  const tokenHash = hashSessionToken(token);
+
+  const { data, error } = await supabase
+    .from("api_tokens")
+    .select("*")
+    .eq("token_hash", tokenHash)
+    .maybeSingle<DbApiToken>();
+
+  if (error) throw error;
+  if (!data) return null;
+  if (data.revoked_at) return null;
+
+  const { error: touchError } = await supabase
+    .from("api_tokens")
+    .update({ last_used_at: new Date().toISOString() })
+    .eq("id", data.id);
+
+  if (touchError) throw touchError;
+  return mapApiToken({ ...data, last_used_at: new Date().toISOString() });
+}
+
+export async function listApiTokensForUser(userId: string): Promise<ApiTokenRecord[]> {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from("api_tokens")
+    .select("*")
+    .eq("user_id", userId)
+    .is("revoked_at", null)
+    .order("created_at", { ascending: true })
+    .returns<DbApiToken[]>();
+
+  if (error) throw error;
+  return (data ?? []).map(mapApiToken);
+}
+
+export async function revokeApiTokenForUser(args: {
+  userId: string;
+  apiTokenId: string;
+}): Promise<void> {
+  const supabase = getSupabase();
+  const { error } = await supabase
+    .from("api_tokens")
+    .update({ revoked_at: new Date().toISOString() })
+    .eq("id", args.apiTokenId)
+    .eq("user_id", args.userId);
 
   if (error) throw error;
 }

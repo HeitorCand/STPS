@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// @stps/sdk — Public types
+// stps-sdk — Public types
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Risk level assigned to a protocol based on its trust score. */
@@ -19,47 +19,95 @@ export interface ScoreHistoryEntry {
 export type FlagName =
   | "FLAG_TIMELOCK_REMOVED"
   | "FLAG_MULTISIG_THRESHOLD_LOWERED"
-  | "FLAG_UNKNOWN_SIGNER"
+  | "FLAG_UNKNOWN_SIGNER_ADDED"
   | "FLAG_EMERGENCY_KEY_USED"
   | "FLAG_WASH_TRADING"
   | "FLAG_LOW_LIQUIDITY_COLLATERAL"
   | "FLAG_NEW_TOKEN_COLLATERAL"
   | "FLAG_HIGH_HOLDER_CONCENTRATION"
-  | "FLAG_PENDING_ADMIN_NONCE";
+  | "FLAG_PENDING_ADMIN_NONCE"
+  | "FLAG_MULTIPLE_ADMIN_NONCES";
 
-/** Status summary of a single scoring layer. */
-export type LayerStatus = "Healthy" | "Warning" | "Critical";
+/** Wallet verification result attached to a claimed protocol. */
+export type VerificationMethod = "upgrade_authority" | "known_admin_signer" | null;
 
-/** Full trust score response returned by the API / SDK. */
+/** Claim status inside the private STPS workspace. */
+export type ClaimStatus = "claimed" | "verified" | "manual_review";
+
+/** Score state for one protocol inside the authenticated workspace. */
 export interface TrustScoreResponse {
-  /** Protocol's Solana public key address. */
   protocolAddress: string;
-  /** Current trust score (0–100). */
   currentScore: number;
-  /** Derived risk level. */
   riskLevel: RiskLevel;
-  /** List of currently active risk flag names. */
   activeFlags: FlagName[];
-  /** Raw bitmask as a decimal string (for on-chain reconciliation). */
   riskFlagsBitmask: string;
-  /** Unix timestamp (ms) of the last score update. */
   lastUpdate: number;
-  /** Full scoring history, oldest first. */
   history: ScoreHistoryEntry[];
 }
 
-/** Paginated list of all tracked protocols. */
-export interface ProtocolListResponse {
-  count: number;
-  protocols: TrustScoreResponse[];
+/** Claim metadata returned by the authenticated workspace routes. */
+export interface ClaimedProtocol {
+  id: string;
+  label: string | null;
+  protocolAddress: string;
+  claimedByWallet: string;
+  status: ClaimStatus;
+  verificationMethod: VerificationMethod;
+  verificationTarget: string | null;
+  verificationNotes: string | null;
+  registrationTxSignature: string | null;
+  createdAt: string;
+  updatedAt: string;
+  protocol: TrustScoreResponse;
 }
 
-/** Options for constructing an StpsClient. */
+/** Authenticated list of protocols bound to the current STPS account. */
+export interface ProtocolListResponse {
+  status: "ok";
+  count: number;
+  protocols: ClaimedProtocol[];
+}
+
+/** Session user returned by `/api/me`. */
+export interface StpsSessionUser {
+  id: string;
+  primaryWalletAddress: string;
+}
+
+/** Session metadata returned by `/api/me`. */
+export interface StpsSessionInfo {
+  id: string;
+  walletAddress: string;
+  expiresAt: string;
+}
+
+/** Persistent API token metadata when the profile is loaded via SDK token auth. */
+export interface StpsApiTokenInfo {
+  id: string;
+  label: string | null;
+  createdAt: string;
+  lastUsedAt: string | null;
+}
+
+/** Authenticated profile payload returned by `/api/me`. */
+export interface StpsProfileResponse {
+  status: "ok";
+  user: StpsSessionUser;
+  session: StpsSessionInfo | null;
+  apiToken: StpsApiTokenInfo | null;
+}
+
+/** Options for constructing an authenticated STPS client. */
 export interface StpsClientOptions {
   /**
+   * Persistent API token issued by the STPS dashboard/account workspace.
+   */
+  token: string;
+
+  /**
    * Base URL of the STPS Scoring Engine.
-   * @example "https://stps-scoring.fly.dev"
-   * @default "http://localhost:3001"
+   * @example "https://stps-scoring-production.up.railway.app"
+   * @default official STPS deployment
    */
   apiUrl?: string;
 
