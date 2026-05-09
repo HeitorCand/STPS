@@ -36,6 +36,7 @@ build/
 !Anchor.toml
 !target/idl/*.json
 !target/types/*.json
+!documentation/content/docs/**/meta.json
 
 # ── Editor / IDE ─────────────────────────────────────────────
 .vscode/settings.json
@@ -68,3 +69,10 @@ yarn-error.log*
 # ── Test / coverage ──────────────────────────────────────────
 coverage/
 .nyc_output/
+
+
+.codex
+.agents
+DESIGN.md
+PRODUCT.md
+documentation/.source/
