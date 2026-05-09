@@ -15,6 +15,9 @@ import { logError, logInfo } from "../logger.js";
  */
 
 const SYSTEM_PROGRAM_ID = new PublicKey("11111111111111111111111111111111");
+const UPGRADEABLE_LOADER_PROGRAM_ID = new PublicKey(
+  "BPFLoaderUpgradeab1e11111111111111111111111",
+);
 
 let connection: Connection | null = null;
 
@@ -75,5 +78,64 @@ export async function findNonceAccountsByAuthority(adminKey: string): Promise<No
   } catch (error) {
     logError("solana_rpc_failed", error, { admin_key: adminKey });
     return [];
+  }
+}
+
+export interface UpgradeAuthorityInfo {
+  programDataAddress: string;
+  upgradeAuthorityAddress: string | null;
+}
+
+export async function getUpgradeableProgramAuthority(
+  programAddress: string,
+): Promise<UpgradeAuthorityInfo | null> {
+  try {
+    const conn = getConnection();
+    const programPubkey = new PublicKey(programAddress);
+    const programAccount = await conn.getAccountInfo(programPubkey, "confirmed");
+
+    if (!programAccount) return null;
+    if (!programAccount.owner.equals(UPGRADEABLE_LOADER_PROGRAM_ID)) {
+      logInfo("program_not_upgradeable", { protocol_address: programAddress });
+      return null;
+    }
+
+    const programTag = programAccount.data.readUInt32LE(0);
+    if (programTag !== 2 || programAccount.data.length < 36) {
+      logInfo("program_account_layout_unexpected", {
+        protocol_address: programAddress,
+        tag: programTag,
+      });
+      return null;
+    }
+
+    const programDataAddress = new PublicKey(programAccount.data.subarray(4, 36));
+    const programDataAccount = await conn.getAccountInfo(programDataAddress, "confirmed");
+    if (!programDataAccount) {
+      return { programDataAddress: programDataAddress.toBase58(), upgradeAuthorityAddress: null };
+    }
+
+    const programDataTag = programDataAccount.data.readUInt32LE(0);
+    if (programDataTag !== 3 || programDataAccount.data.length < 13) {
+      logInfo("program_data_layout_unexpected", {
+        protocol_address: programAddress,
+        tag: programDataTag,
+      });
+      return null;
+    }
+
+    const option = programDataAccount.data.readUInt8(12);
+    const upgradeAuthorityAddress =
+      option === 1 && programDataAccount.data.length >= 45
+        ? new PublicKey(programDataAccount.data.subarray(13, 45)).toBase58()
+        : null;
+
+    return {
+      programDataAddress: programDataAddress.toBase58(),
+      upgradeAuthorityAddress,
+    };
+  } catch (error) {
+    logError("upgrade_authority_fetch_failed", error, { protocol_address: programAddress });
+    return null;
   }
 }
