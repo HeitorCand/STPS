@@ -1,121 +1,111 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import { useCallback, useEffect, useState } from 'react'
+import { CertificatePanel } from './components/CertificatePanel'
+import { FlagsPanel } from './components/FlagsPanel'
+import { PipelinePanel } from './components/PipelinePanel'
+import { ProtocolList } from './components/ProtocolList'
+import { Rail } from './components/Rail'
+import { ScorePanel } from './components/ScorePanel'
+import { ScoreTimeline } from './components/ScoreTimeline'
+import { ServiceStatus } from './components/ServiceStatus'
+import { WorkspaceHeader } from './components/WorkspaceHeader'
+import { mockProtocols } from './data/mockProtocols'
+import { fetchIndexerHealth, fetchProtocols, fetchScoringHealth } from './lib/api'
+import { toProtocol } from './lib/adapters'
+import type { DataStatus, Protocol } from './types/stps'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [protocols, setProtocols] = useState<Protocol[]>(mockProtocols)
+  const [selectedAddress, setSelectedAddress] = useState(mockProtocols[0].address)
+  const [dataStatus, setDataStatus] = useState<DataStatus>('loading')
+  const [statusMessage, setStatusMessage] = useState('Connecting to production Scoring Engine')
+  const [scoringOnline, setScoringOnline] = useState(false)
+  const [indexerOnline, setIndexerOnline] = useState(false)
+
+  const loadDashboard = useCallback(async () => {
+    await Promise.resolve()
+    setDataStatus('loading')
+    setStatusMessage('Connecting to production Scoring Engine')
+
+    const [scoringHealthResult, indexerHealthResult] = await Promise.allSettled([
+      fetchScoringHealth(),
+      fetchIndexerHealth(),
+    ])
+
+    const scoringIsOnline =
+      scoringHealthResult.status === 'fulfilled' && scoringHealthResult.value.status === 'ok'
+    const indexerIsOnline =
+      indexerHealthResult.status === 'fulfilled' && indexerHealthResult.value.status === 'ok'
+
+    setScoringOnline(scoringIsOnline)
+    setIndexerOnline(indexerIsOnline)
+
+    try {
+      const response = await fetchProtocols()
+      const liveProtocols = response.protocols.map(toProtocol)
+
+      if (liveProtocols.length === 0) {
+        setProtocols(mockProtocols)
+        setSelectedAddress(mockProtocols[0].address)
+        setDataStatus('fallback')
+        setStatusMessage('Production API is online but has no registered protocols yet')
+        return
+      }
+
+      setProtocols(liveProtocols)
+      setSelectedAddress((current) =>
+        liveProtocols.some((protocol) => protocol.address === current)
+          ? current
+          : liveProtocols[0].address,
+      )
+      setDataStatus('live')
+      setStatusMessage(
+        `Loaded ${liveProtocols.length} protocol${liveProtocols.length === 1 ? '' : 's'} from production`,
+      )
+    } catch (error) {
+      setProtocols(mockProtocols)
+      setSelectedAddress(mockProtocols[0].address)
+      setDataStatus('error')
+      setStatusMessage(error instanceof Error ? error.message : 'Could not load production API')
+    }
+  }, [])
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void loadDashboard()
+    }, 0)
+
+    return () => window.clearTimeout(timer)
+  }, [loadDashboard])
+
+  const selected = protocols.find((protocol) => protocol.address === selectedAddress) ?? protocols[0]
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <main className="client-shell">
+      <Rail dataStatus={dataStatus} />
 
-      <div className="ticks"></div>
+      <section className="workspace" id="overview">
+        <WorkspaceHeader onRefresh={() => void loadDashboard()} />
+        <ServiceStatus
+          scoringOnline={scoringOnline}
+          indexerOnline={indexerOnline}
+          statusMessage={statusMessage}
+        />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
+        <div className="dashboard-grid">
+          <ProtocolList
+            protocols={protocols}
+            selectedAddress={selected.address}
+            onSelect={setSelectedAddress}
+          />
+          <ScorePanel protocol={selected} />
+          <CertificatePanel protocol={selected} />
+          <FlagsPanel protocol={selected} />
+          <ScoreTimeline protocol={selected} />
+          <PipelinePanel />
         </div>
       </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+    </main>
   )
 }
 

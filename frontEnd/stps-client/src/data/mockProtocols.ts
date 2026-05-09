@@ -1,0 +1,96 @@
+import type { Protocol } from '../types/stps'
+
+export const mockProtocols: Protocol[] = [
+  {
+    name: 'Drift V2',
+    address: 'dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH',
+    authority: 'Scoring Engine PDA',
+    score: 42,
+    riskLevel: 'High',
+    lastUpdate: '23:00 UTC',
+    environment: 'Devnet',
+    activeFlags: [
+      'FLAG_TIMELOCK_REMOVED',
+      'FLAG_MULTISIG_THRESHOLD_LOWERED',
+      'FLAG_UNKNOWN_SIGNER_ADDED',
+    ],
+    recommendation: 'Require additional validation before critical operations.',
+    history: [
+      {
+        time: '00:00',
+        score: 85,
+        label: 'Baseline certificate',
+        detail: 'Governance rules and signer set passed the initial review.',
+        delta: 'baseline',
+      },
+      {
+        time: '11:06',
+        score: 65,
+        label: 'Threshold lowered',
+        detail: 'Multisig approval requirement changed from 5 to 1.',
+        delta: '-20',
+      },
+      {
+        time: '23:00',
+        score: 42,
+        label: 'Timelock removed',
+        detail: 'A critical governance action can execute without delay.',
+        delta: '-23',
+      },
+    ],
+  },
+  {
+    name: 'Jupiter',
+    address: 'JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4',
+    authority: 'Scoring Engine PDA',
+    score: 96,
+    riskLevel: 'Low',
+    lastUpdate: '18:42 UTC',
+    environment: 'Devnet',
+    activeFlags: [],
+    recommendation: 'Continue monitoring governance and collateral changes.',
+    history: [
+      {
+        time: '09:00',
+        score: 95,
+        label: 'Certificate issued',
+        detail: 'No critical governance flags detected.',
+        delta: 'baseline',
+      },
+      {
+        time: '14:30',
+        score: 96,
+        label: 'Asset review refreshed',
+        detail: 'Liquidity signals remained healthy after cache refresh.',
+        delta: '+1',
+      },
+    ],
+  },
+  {
+    name: 'Marinade',
+    address: 'MarBmsSgKXdrN1egZf5sqe1TMai9K1rChYNDJgjq7aD',
+    authority: 'Scoring Engine PDA',
+    score: 88,
+    riskLevel: 'Low',
+    lastUpdate: '17:12 UTC',
+    environment: 'Devnet',
+    activeFlags: ['FLAG_PENDING_ADMIN_NONCE'],
+    recommendation: 'Review pending admin nonce before approving new authority actions.',
+    history: [
+      {
+        time: '08:00',
+        score: 92,
+        label: 'Baseline certificate',
+        detail: 'Protocol registered with healthy governance state.',
+        delta: 'baseline',
+      },
+      {
+        time: '17:12',
+        score: 88,
+        label: 'Pending admin nonce',
+        detail: 'A nonce account linked to admin authority remains active.',
+        delta: '-4',
+      },
+    ],
+  },
+]
