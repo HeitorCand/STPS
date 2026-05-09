@@ -11,23 +11,32 @@ export function ProtocolList({ protocols, selectedAddress, onSelect }: ProtocolL
   return (
     <section className="protocol-list" aria-label="Tracked protocols">
       <div className="section-title">
-        <span>Tracked protocols</span>
+        <span>Managed protocols</span>
         <strong>{protocols.length}</strong>
       </div>
+      {protocols.length === 0 ? (
+        <div className="empty-state compact">
+          <strong>No claimed protocols</strong>
+          <p>Claim a program address and verify control to start a private monitoring workspace.</p>
+        </div>
+      ) : null}
       <div className="protocol-stack">
         {protocols.map((protocol) => (
           <button
             type="button"
             className="protocol-row"
             data-active={protocol.address === selectedAddress}
-            key={protocol.address}
+            key={protocol.id}
             onClick={() => onSelect(protocol.address)}
           >
             <span>
               <strong>{protocol.name}</strong>
               <small>{protocol.address}</small>
             </span>
-            <em className={`risk-pill ${riskClass(protocol.riskLevel)}`}>{protocol.riskLevel}</em>
+            <span className="protocol-meta">
+              <em className={`claim-pill ${protocol.claimStatus}`}>{protocol.claimStatus}</em>
+              <em className={`risk-pill ${riskClass(protocol.riskLevel)}`}>{protocol.riskLevel}</em>
+            </span>
             <b>{protocol.score}</b>
           </button>
         ))}

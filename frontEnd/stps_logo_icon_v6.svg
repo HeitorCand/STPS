@@ -1,6 +1,6 @@
 <svg width="240" height="280" viewBox="0 0 240 280" role="img" xmlns="http://www.w3.org/2000/svg">
-<title>STPS Icon — Transparent</title>
-<desc>STPS — símbolo simplificado, fundo transparente</desc>
+<title>STPS Icon</title>
+<desc>STPS — símbolo simplificado</desc>
 <defs>
   <linearGradient id="hexStroke" x1="0%" y1="0%" x2="100%" y2="100%">
     <stop offset="0%" stop-color="#5DCAA5"/>
@@ -11,6 +11,8 @@
     <stop offset="100%" stop-color="#9FE1CB"/>
   </linearGradient>
 </defs>
+
+<rect width="240" height="280" fill="#04100C"/>
 
 <g transform="translate(120, 118)">
   <polygon points="0,-88 76.2,-44 76.2,44 0,88 -76.2,44 -76.2,-44" fill="#063326"/>

@@ -22,7 +22,10 @@ export function ScorePanel({ protocol }: ScorePanelProps) {
       <div className="score-meter" aria-hidden="true">
         <span style={{ width: `${protocol.score}%` }} />
       </div>
-      <p>{riskCopy[protocol.riskLevel]}. Last update: {protocol.lastUpdate}.</p>
+      <p>
+        {riskCopy[protocol.riskLevel]}. Claim status: {protocol.claimStatus}. Last update:{' '}
+        {protocol.lastUpdate}.
+      </p>
     </section>
   )
 }

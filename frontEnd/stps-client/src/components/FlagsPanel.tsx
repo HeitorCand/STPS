@@ -26,6 +26,7 @@ export function FlagsPanel({ protocol }: FlagsPanelProps) {
           <p>The protocol is still monitored for governance, asset and nonce changes.</p>
         </div>
       )}
+      {protocol.verificationNotes ? <p className="verification-note">{protocol.verificationNotes}</p> : null}
       <p className="recommendation">{protocol.recommendation}</p>
     </section>
   )

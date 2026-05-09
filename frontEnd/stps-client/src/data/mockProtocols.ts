@@ -2,6 +2,7 @@ import type { Protocol } from '../types/stps'
 
 export const mockProtocols: Protocol[] = [
   {
+    id: 'preview-drift',
     name: 'Drift V2',
     address: 'dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH',
     authority: 'Scoring Engine PDA',
@@ -38,8 +39,15 @@ export const mockProtocols: Protocol[] = [
         delta: '-23',
       },
     ],
+    claimStatus: 'verified',
+    verificationMethod: 'upgrade_authority',
+    verificationTarget: 'Preview authority',
+    verificationNotes: 'Preview workspace before wallet sign-in.',
+    claimedByWallet: 'Preview wallet',
+    isPreview: true,
   },
   {
+    id: 'preview-jupiter',
     name: 'Jupiter',
     address: 'JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4',
     authority: 'Scoring Engine PDA',
@@ -65,8 +73,15 @@ export const mockProtocols: Protocol[] = [
         delta: '+1',
       },
     ],
+    claimStatus: 'verified',
+    verificationMethod: 'upgrade_authority',
+    verificationTarget: 'Preview authority',
+    verificationNotes: 'Preview workspace before wallet sign-in.',
+    claimedByWallet: 'Preview wallet',
+    isPreview: true,
   },
   {
+    id: 'preview-marinade',
     name: 'Marinade',
     address: 'MarBmsSgKXdrN1egZf5sqe1TMai9K1rChYNDJgjq7aD',
     authority: 'Scoring Engine PDA',
@@ -92,5 +107,11 @@ export const mockProtocols: Protocol[] = [
         delta: '-4',
       },
     ],
+    claimStatus: 'claimed',
+    verificationMethod: null,
+    verificationTarget: null,
+    verificationNotes: 'Preview workspace before wallet sign-in.',
+    claimedByWallet: 'Preview wallet',
+    isPreview: true,
   },
 ]

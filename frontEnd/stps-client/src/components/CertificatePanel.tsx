@@ -8,7 +8,7 @@ export function CertificatePanel({ protocol }: CertificatePanelProps) {
   return (
     <section className="certificate-panel" id="certificate" aria-label="Protocol certificate">
       <div className="certificate-head">
-        <span>ProtocolCertificate</span>
+        <span>Protocol Certificate</span>
         <strong>{protocol.environment}</strong>
       </div>
       <div className="certificate-grid">
@@ -27,6 +27,14 @@ export function CertificatePanel({ protocol }: CertificatePanelProps) {
         <div>
           <small>Risk level</small>
           <strong>{protocol.riskLevel}</strong>
+        </div>
+        <div>
+          <small>Claim status</small>
+          <strong>{protocol.claimStatus}</strong>
+        </div>
+        <div>
+          <small>Verification target</small>
+          <strong>{protocol.verificationTarget ?? 'Awaiting proof'}</strong>
         </div>
       </div>
       <div className="certificate-seal" aria-hidden="true">
