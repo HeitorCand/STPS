@@ -8,6 +8,7 @@ export type VerificationMethod = "upgrade_authority" | "known_admin_signer" | nu
 export interface UserRecord {
   id: string;
   primaryWalletAddress: string;
+  displayName: string | null;
   createdAt: string;
 }
 
@@ -60,6 +61,7 @@ export interface ProtocolClaimRecord {
 type DbUser = {
   id: string;
   primary_wallet_address: string;
+  display_name: string | null;
   created_at: string;
 };
 
@@ -113,6 +115,7 @@ function mapUser(row: DbUser): UserRecord {
   return {
     id: row.id,
     primaryWalletAddress: row.primary_wallet_address,
+    displayName: row.display_name,
     createdAt: row.created_at,
   };
 }
@@ -271,7 +274,7 @@ export async function findOrCreateUserByWallet(walletAddress: string): Promise<U
 
   const { data: user, error: createUserError } = await supabase
     .from("users")
-    .insert({ primary_wallet_address: walletAddress })
+    .insert({ primary_wallet_address: walletAddress, display_name: null })
     .select("*")
     .single<DbUser>();
 
@@ -296,6 +299,22 @@ export async function getUserById(userId: string): Promise<UserRecord | null> {
 
   if (error) throw error;
   return data ? mapUser(data) : null;
+}
+
+export async function updateUserDisplayName(args: {
+  userId: string;
+  displayName: string;
+}): Promise<UserRecord> {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from("users")
+    .update({ display_name: args.displayName })
+    .eq("id", args.userId)
+    .select("*")
+    .single<DbUser>();
+
+  if (error) throw error;
+  return mapUser(data);
 }
 
 export async function createSession(args: {

@@ -3,9 +3,13 @@ create extension if not exists pgcrypto;
 create table if not exists public.users (
   id uuid primary key default gen_random_uuid(),
   primary_wallet_address text not null unique,
+  display_name text,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
 );
+
+alter table public.users
+add column if not exists display_name text;
 
 create table if not exists public.wallet_identities (
   id uuid primary key default gen_random_uuid(),

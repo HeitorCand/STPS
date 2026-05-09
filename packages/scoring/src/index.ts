@@ -25,6 +25,7 @@ import {
   listApiTokensForUser,
   revokeApiTokenForUser,
   revokeSession,
+  updateUserDisplayName,
   updateClaimVerification,
   type ApiTokenRecord,
   type ProtocolClaimRecord,
@@ -89,6 +90,10 @@ const verifyProtocolSchema = z.object({
 
 const createApiTokenSchema = z.object({
   label: z.string().trim().min(1).max(80).optional(),
+});
+
+const updateProfileSchema = z.object({
+  displayName: z.string().trim().min(2).max(40),
 });
 
 function getSessionAuthorizationToken(req: Request): string | null {
@@ -255,7 +260,7 @@ export function buildScoringApp() {
       res.setHeader("Vary", "Origin");
     }
 
-    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization,X-STPS-Token");
 
     if (req.method === "OPTIONS") {
@@ -468,6 +473,7 @@ export function buildScoringApp() {
         user: {
           id: user.id,
           primaryWalletAddress: user.primaryWalletAddress,
+          displayName: user.displayName,
         },
       });
     } catch (error) {
@@ -488,6 +494,7 @@ export function buildScoringApp() {
       user: {
         id: req.user!.id,
         primaryWalletAddress: req.user!.primaryWalletAddress,
+        displayName: req.user!.displayName,
       },
       session: req.session
         ? {
@@ -516,6 +523,39 @@ export function buildScoringApp() {
       res.json({ status: "ok" });
     } catch (error) {
       logError("logout_failed", error);
+      res.status(500).json({ status: "error" });
+    }
+  });
+
+  app.patch("/api/me/profile", async (req: AuthenticatedRequest, res: Response) => {
+    if (!(await authenticate(req, res))) return;
+    if (!req.session) {
+      res.status(401).json({ status: "session_required" });
+      return;
+    }
+
+    try {
+      const body = updateProfileSchema.parse(req.body);
+      const user = await updateUserDisplayName({
+        userId: req.user!.id,
+        displayName: body.displayName,
+      });
+
+      req.user = user;
+      res.json({
+        status: "ok",
+        user: {
+          id: user.id,
+          primaryWalletAddress: user.primaryWalletAddress,
+          displayName: user.displayName,
+        },
+      });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ status: "invalid_payload", issues: error.issues });
+        return;
+      }
+      logError("update_profile_failed", error, { user_id: req.user!.id });
       res.status(500).json({ status: "error" });
     }
   });
