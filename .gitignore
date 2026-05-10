@@ -76,5 +76,5 @@ coverage/
 DESIGN.md
 PRODUCT.md
 documentation/.source/
-./docs
+docs
 copilot-instructions.md
