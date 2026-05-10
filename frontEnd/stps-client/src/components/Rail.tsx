@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import stpsLogo from '../../../stps_logo_transparent.svg'
+import stpsLogo from '../assets/stps_logo_transparent.svg'
 
 type RailProps = {
   sessionWallet: string | null

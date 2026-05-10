@@ -1,4 +1,4 @@
-import stpsLogo from '../../../stps_logo_transparent.svg'
+import stpsLogo from '../assets/stps_logo_transparent.svg'
 import { Link } from 'react-router-dom'
 
 type LoginPageProps = {

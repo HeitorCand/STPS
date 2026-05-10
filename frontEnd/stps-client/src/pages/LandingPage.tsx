@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
-import heroImg from '../../../landing-page/src/assets/hero.png'
-import stpsLogo from '../../../landing-page/src/assets/stps_logo.svg'
+import heroImg from '../assets/hero.png'
+import stpsLogo from '../assets/stps_logo.svg'
 import './LandingPage.css'
 
 const riskEvents = [
