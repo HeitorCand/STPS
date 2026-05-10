@@ -1,0 +1,103 @@
+---
+title: SDK Quickstart
+description: Integração mínima com stps-sdk usando o STPS já publicado.
+icon: Package
+---
+
+Use o SDK quando um backend, bot, monitor ou serviço interno precisa ler os
+protocolos vinculados à conta STPS.
+
+O SDK não é um motor de scoring embarcado. Ele é um cliente para consumir o
+estado de confiança que o STPS já decidiu.
+
+## Instalação
+
+```bash
+npm install stps-sdk
+```
+
+O pacote publicado está no npm como `stps-sdk`.
+
+Página do pacote:
+
+```txt
+https://www.npmjs.com/package/stps-sdk
+```
+
+## Token
+
+Crie um token em:
+
+```txt
+/dashboard/tokens
+```
+
+Guarde como segredo:
+
+```bash
+STPS_API_TOKEN=stps_...
+```
+
+Esse token representa a conta do operador no contexto do SDK. Por isso o SDK
+enxerga apenas os protocolos vinculados àquela conta, e não um catálogo público
+global.
+
+## Primeiro script
+
+```ts
+import { StpsClient } from "stps-sdk";
+
+const client = new StpsClient({
+  token: process.env.STPS_API_TOKEN!,
+});
+
+const { protocols } = await client.getProtocols();
+
+for (const item of protocols) {
+  console.log({
+    protocol: item.protocolAddress,
+    status: item.status,
+    score: item.protocol.currentScore,
+    risk: item.protocol.riskLevel,
+  });
+}
+```
+
+## Usando o produto oficial
+
+Se você não passar `apiUrl`, o SDK usa automaticamente o ambiente oficial do
+STPS. Para consumo padrão do produto, esse é o caminho esperado.
+
+## Usando um Scoring Engine próprio
+
+Se você roda seu próprio engine:
+
+```ts
+const client = new StpsClient({
+  token: process.env.STPS_API_TOKEN!,
+  apiUrl: "https://meu-scoring-engine.exemplo.com",
+});
+```
+
+Nesse cenário, o seu engine precisa reproduzir a mesma lógica conceitual do
+produto:
+
+- manter um modelo de certificado por protocolo;
+- expor uma camada de conta/workspace;
+- aceitar tokens persistentes vinculados à conta;
+- devolver apenas os protocolos permitidos para aquele token;
+- manter compatibilidade com o contrato de leitura do SDK.
+
+Em outras palavras, apontar o `apiUrl` para outro lugar não é só trocar host.
+Você está dizendo que existe outro STPS compatível na outra ponta.
+
+O front só mostrará o engine próprio se ele também estiver configurado para usar
+essa URL. O SDK não muda automaticamente a URL do dashboard.
+
+## Health check
+
+```ts
+const ok = await client.isHealthy();
+```
+
+Esse método valida API disponível e token aceito.

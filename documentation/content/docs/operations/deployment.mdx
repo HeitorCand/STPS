@@ -1,0 +1,40 @@
+---
+title: Adoção
+description: Como pensar o uso do STPS em produção e em ambientes próprios.
+icon: Rocket
+---
+
+## Superfícies públicas
+
+Hoje o STPS é consumido publicamente por duas superfícies:
+
+- Dashboard: `https://stps-client.vercel.app/`
+- SDK: `https://www.npmjs.com/package/stps-sdk`
+
+## Como consumir o produto
+
+- Operador humano:
+  use `https://stps-client.vercel.app/`
+- Integração backend:
+  use `stps-sdk` com token persistente
+
+## Ambiente próprio
+
+Se uma equipe quiser rodar um Scoring Engine próprio, ela pode:
+
+- subir o backend STPS com seu próprio banco;
+- emitir seus próprios tokens persistentes;
+- apontar o SDK para seu `apiUrl`;
+- opcionalmente apontar um front próprio para esse mesmo engine.
+
+O dashboard publicado em `stps-client.vercel.app` continua mostrando o engine
+configurado nele, não o engine que o SDK do usuário escolher por conta própria.
+
+## Escolha de superfície
+
+Na prática, há dois caminhos de adoção:
+
+- usar o dashboard oficial para operação humana;
+- usar o SDK para integração em serviços internos, bots ou monitores.
+
+O resto da arquitetura existe para sustentar essas duas superfícies.

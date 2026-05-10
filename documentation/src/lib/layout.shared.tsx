@@ -1,29 +1,28 @@
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
-import stpsLogo from "@/assets/stps_logo.svg";
-import stpsLogoLightMode from "@/assets/stps_logo_lightmode.svg";
 
 export function baseOptions(): BaseLayoutProps {
   return {
     nav: {
       title: (
         <span className="stps-docs-logo-wrap" aria-label="STPS">
-          <img
-            src={stpsLogoLightMode.src}
-            alt=""
-            className="stps-docs-logo stps-docs-logo-light"
-          />
-          <img
-            src={stpsLogo.src}
-            alt=""
-            className="stps-docs-logo stps-docs-logo-dark"
-          />
+          <img src="/stps_logo_transparent.svg" alt="STPS" className="stps-docs-logo" />
         </span>
       ),
     },
     links: [
       {
-        text: "Intro",
+        text: "Docs",
         url: "/docs",
+        active: "nested-url",
+      },
+      {
+        text: "App",
+        url: "https://stps-client.vercel.app/",
+        external: true,
+      },
+      {
+        text: "SDK",
+        url: "/docs/sdk/quickstart",
         active: "nested-url",
       },
       {

@@ -1,0 +1,64 @@
+---
+title: Indexer
+description: Como webhooks da Helius viram eventos de governança para o Scoring Engine.
+icon: RadioTower
+---
+
+O Indexer é o serviço que recebe webhooks, parseia transações e emite eventos
+normalizados para o Scoring Engine.
+
+Ele existe para impedir que o resto do sistema fique acoplado aos formatos
+brutos da chain ou da Helius.
+
+## Parsers
+
+O Indexer possui parsers para:
+
+- Squads;
+- SPL Governance;
+- System nonce.
+
+Cada parser tenta reconhecer um evento de risco e devolver um `GovernanceEvent`.
+
+Isso separa claramente duas responsabilidades:
+
+- o parser entende a forma da transação;
+- o Scoring Engine entende o impacto do evento.
+
+## Evento normalizado
+
+Formato lógico:
+
+```ts
+type GovernanceEvent = {
+  type:
+    | "MULTISIG_THRESHOLD_CHANGED"
+    | "TIMELOCK_CHANGED"
+    | "SIGNER_ADDED"
+    | "SIGNER_REMOVED"
+    | "EMERGENCY_KEY_USED"
+    | "NONCE_ACCOUNT_CREATED"
+    | "NONCE_ADVANCED";
+  protocolAddress: string;
+  sourceProgram: "squads" | "spl-governance" | "system-nonce";
+  rawSignature: string;
+  timestamp: number;
+  metadata: Record<string, unknown>;
+};
+```
+
+Esse contrato intermediário é uma peça central do STPS. Ele é o que permite
+trocar parser, adicionar fontes novas ou mudar lógica de ingestão sem ter que
+reescrever o motor de scoring inteiro.
+
+## Segurança do webhook
+
+Se `HELIUS_WEBHOOK_SECRET` estiver configurado, o Indexer exige segredo no
+header ou query string.
+
+## Por que isso importa no produto
+
+Sem uma camada de indexação, cada integração teria que entender raw payloads,
+program IDs e formatos diferentes de governança. O Indexer tira essa
+complexidade da superfície pública e deixa o produto mais previsível, tanto
+para o dashboard quanto para o SDK.

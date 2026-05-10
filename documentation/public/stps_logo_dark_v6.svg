@@ -1,6 +1,6 @@
 <svg width="600" height="240" viewBox="0 0 600 240" role="img" xmlns="http://www.w3.org/2000/svg">
-<title>STPS Logo — Transparent</title>
-<desc>STPS Trust Protocol — fundo transparente</desc>
+<title>STPS Logo — Dark</title>
+<desc>STPS Trust Protocol — versão dark</desc>
 <defs>
   <linearGradient id="hexStroke" x1="0%" y1="0%" x2="100%" y2="100%">
     <stop offset="0%" stop-color="#5DCAA5"/>
@@ -12,11 +12,15 @@
   </linearGradient>
 </defs>
 
+<rect width="600" height="240" fill="#04100C"/>
+
 <g transform="translate(128, 120)">
   <polygon points="0,-88 76.2,-44 76.2,44 0,88 -76.2,44 -76.2,-44" fill="#063326"/>
   <polygon points="0,-88 76.2,-44 76.2,44 0,88 -76.2,44 -76.2,-44" fill="none" stroke="url(#hexStroke)" stroke-width="1.5"/>
   <polygon points="0,-66 57.2,-33 57.2,33 0,66 -57.2,33 -57.2,-33" fill="none" stroke="#5DCAA5" stroke-width="0.6" opacity="0.25"/>
+  <!-- checkmark apenas -->
   <path d="M -22 0 L -8 16 L 24 -18" fill="none" stroke="url(#checkGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- score dots -->
   <circle cx="-24" cy="72" r="4.5" fill="#5DCAA5"/>
   <circle cx="-12" cy="78" r="4.5" fill="#5DCAA5"/>
   <circle cx="0"   cy="80" r="4.5" fill="#5DCAA5"/>

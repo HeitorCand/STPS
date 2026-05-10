@@ -1,0 +1,128 @@
+---
+title: Arquitetura
+description: Como Indexer, Scoring Engine, Anchor, Dashboard e SDK trabalham juntos.
+icon: Network
+---
+
+O STPS é composto por uma cadeia de ingestão, cálculo e consumo do score.
+
+<Mermaid
+  chart={`
+flowchart LR
+    chain["Signal ingress<br/>Helius + chain activity<br/>Governance, admin e nonce activity entram como matéria-prima observável."]
+    indexer["Normalization<br/>Indexer<br/>Eventos heterogêneos viram uma linguagem comum de risco operacional."]
+    scoring["Decision layer<br/>Scoring Engine<br/>O motor transforma sinais em score, flags, histórico e estado de workspace."]
+    trust["Trust surface<br/>Anchor + Clients<br/>O certificado é persistido on-chain e consumido por dashboard e SDK."]
+
+    chain --> indexer --> scoring --> trust
+
+    classDef signal fill:#0c211b,stroke:#2d7a68,color:#e7f7f1,stroke-width:1px;
+    classDef compute fill:#0d1c2a,stroke:#3b82f6,color:#e7f1ff,stroke-width:1px;
+    classDef final fill:#101b19,stroke:#4fd1bd,color:#eefbf8,stroke-width:1px;
+
+    class chain signal;
+    class indexer compute;
+    class scoring compute;
+    class trust final;
+  `}
+/>
+
+## Superfícies
+
+| Componente | Pasta | Responsabilidade |
+| --- | --- | --- |
+| Indexer | `packages/indexer` | Receber webhooks e normalizar eventos. |
+| Scoring Engine | `packages/scoring` | Calcular score, flags, histórico e workspace privado. |
+| Anchor Program | `programs/stps` | Persistir o certificado on-chain. |
+| Dashboard | `frontEnd/stps-client` | Login, claim, verificação, tokens e leitura operacional. |
+| SDK | `packages/sdk` | Leitura autenticada dos protocolos da conta. |
+
+## O que cada bloco resolve
+
+### Indexer
+
+O Indexer existe para isolar o ruído da chain do restante do produto. A cadeia
+real de transações é heterogênea, cheia de formatos e instruções específicas por
+programa. O papel do Indexer é transformar isso em um contrato interno pequeno,
+previsível e estável. Assim, o Scoring Engine não precisa entender cada payload
+bruto da Helius ou cada peculiaridade de parser.
+
+### Scoring Engine
+
+O Scoring Engine é a camada de decisão. Ele pega um evento já normalizado e
+responde três perguntas:
+
+- isso altera o estado de confiança do protocolo?
+- que flags explicam essa mudança?
+- como esse novo estado deve ser exposto no workspace e no SDK?
+
+Essa é a camada que dá coerência ao produto, porque centraliza score,
+explicabilidade, histórico e identidade da conta operadora.
+
+### Anchor Program
+
+O programa Anchor dá persistência e verificabilidade ao certificado. Em vez de
+o score existir só como resposta de API, ele também pode ser tratado como estado
+de protocolo, com semântica on-chain. Isso é importante para a tese do STPS,
+porque aproxima o produto de uma certificate authority para operações Solana.
+
+### Dashboard
+
+O dashboard é a superfície operacional humana. Ele não existe para mostrar um
+catálogo público genérico, mas para servir a equipe que opera um protocolo.
+Ali, a lógica de trust vira workflow: claim, verificação, leitura de score,
+inspeção do certificado e emissão de token para integrações.
+
+### SDK
+
+O SDK é a superfície de automação. Ele pega o mesmo estado que a equipe vê no
+dashboard e o leva para bots, serviços internos, pipelines de CI e monitores.
+O papel dele não é recalcular risco. O papel dele é propagar o estado já
+decidido pelo STPS para outros sistemas.
+
+## Modelo de dados principal
+
+O objeto central é o certificado do protocolo:
+
+- `protocolAddress`
+- `currentScore`
+- `riskLevel`
+- `activeFlags`
+- `riskFlagsBitmask`
+- `lastUpdate`
+- `history`
+
+Esse estado pode ser mostrado no dashboard, lido pelo SDK e persistido pelo
+programa Anchor.
+
+## Fluxo de score
+
+1. Um evento de governança acontece na Solana.
+2. A Helius envia o payload para o Indexer.
+3. O Indexer converte o payload em `GovernanceEvent`.
+4. O Scoring Engine recalcula score e flags.
+5. O dashboard e o SDK leem o estado atualizado.
+
+O ponto importante aqui é que o score não nasce de uma chamada manual do
+usuário. Ele nasce de eventos operacionais do protocolo. O dashboard e o SDK
+são consumidores de um estado já consolidado, não a origem desse estado.
+
+## Fluxo do operador
+
+1. Wallet assina challenge.
+2. Backend cria sessão.
+3. Operador faz claim de protocolo.
+4. Backend verifica controle.
+5. Operador cria tokens persistentes para integrações.
+
+Esse fluxo separa duas ideias que costumam se misturar:
+
+- quem controla o protocolo como operador;
+- quem consome o trust state como sistema.
+
+A wallet resolve a primeira. O token persistente resolve a segunda.
+
+## Escrita on-chain
+
+O Scoring Engine registra e atualiza certificados via Anchor como parte do fluxo
+normal do produto.

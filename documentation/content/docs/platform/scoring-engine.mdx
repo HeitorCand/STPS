@@ -1,0 +1,90 @@
+---
+title: Scoring Engine
+description: Motor que calcula score, organiza o workspace e emite tokens para o SDK.
+icon: Gauge
+---
+
+O Scoring Engine é o backend principal do STPS. Ele calcula o score dos
+protocolos e também serve o workspace autenticado do operador.
+
+## Responsabilidades
+
+- receber eventos normalizados;
+- recalcular score, risk level, flags e histórico;
+- registrar protocolo quando necessário;
+- autenticar wallet sessions;
+- armazenar claims e status de verificação;
+- emitir tokens persistentes para SDK;
+- escrever atualizações do certificado no programa Anchor.
+
+## O que ele coordena
+
+O Scoring Engine cumpre quatro papéis ao mesmo tempo:
+
+- recebe eventos já normalizados;
+- calcula score, flags e histórico;
+- mantém o workspace privado por conta;
+- emite tokens persistentes para consumo pelo SDK.
+
+Na prática, ele é o ponto onde a lógica técnica do STPS vira produto. O Indexer
+entrega sinais. O Anchor persiste estado. Mas é o Scoring Engine que decide o
+que um protocolo “é” naquele momento em termos de confiança operacional.
+
+## Como ele pensa o risco
+
+O motor não trata score como um número solto. Ele trata score como uma soma de
+causas:
+
+- o evento entra;
+- o motor identifica a categoria de risco;
+- flags são ativadas;
+- o histórico ganha uma razão legível;
+- o certificado final é atualizado.
+
+Isso é importante porque o valor do STPS não está só em dizer que um protocolo
+está em `42`. O valor está em conseguir explicar por que esse `42` aconteceu.
+
+## Eventos de governança
+
+O Scoring Engine entende eventos como:
+
+- `MULTISIG_THRESHOLD_CHANGED`
+- `TIMELOCK_CHANGED`
+- `SIGNER_ADDED`
+- `SIGNER_REMOVED`
+- `EMERGENCY_KEY_USED`
+- `NONCE_ACCOUNT_CREATED`
+- `NONCE_ADVANCED`
+
+Esses eventos não são úteis isoladamente. O papel do motor é interpretar o
+impacto operacional deles no contexto do protocolo e transformá-los em flags e
+mudanças de score legíveis.
+
+## Workspace do operador
+
+Além do score, o Scoring Engine também sustenta a identidade de conta do
+produto. Isso inclui:
+
+- sessão do operador;
+- claims de protocolos;
+- status de verificação;
+- emissão e revogação de tokens persistentes.
+
+Essa escolha reduz fragmentação. Em vez de existir um “backend de risco” e um
+“backend de conta” separados, o STPS concentra o estado da conta perto do
+estado do certificado, porque os dois fazem parte do mesmo fluxo de uso.
+
+## Supabase
+
+O schema cria:
+
+- users;
+- wallet identities;
+- auth challenges;
+- sessions;
+- protocol claims;
+- api tokens.
+
+O banco existe para sustentar relacionamento e acesso, não para substituir a
+chain. Claims, sessões e tokens vivem no workspace. O certificado continua
+sendo o objeto de confiança central do produto.

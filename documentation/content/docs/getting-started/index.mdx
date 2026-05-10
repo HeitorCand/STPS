@@ -1,42 +1,84 @@
 ---
-title: Getting Started
-description: Initial structure for understanding and extending the STPS MVP.
+title: Quickstart
+description: O menor caminho para usar o STPS que já está em produção.
 icon: BookOpen
 ---
 
-## What STPS validates
+Use esta página quando você quer entender o fluxo mínimo de ponta a ponta:
 
-STPS is not a wallet reputation score. It is a protocol trust layer for critical Solana operations:
+- abrir o dashboard em produção;
+- entrar com wallet;
+- fazer claim de um protocolo;
+- verificar controle;
+- ler o score no dashboard;
+- gerar um token para o SDK.
 
-- Governance changes.
-- Administrative permissions.
-- Business rule updates.
-- Asset legitimacy.
-- Durable nonces and latent permissions.
-- Architectural risk inside DeFi protocols.
+## 1. Abra o dashboard
 
-## Initial architecture
+Use:
 
 ```txt
-Helius Webhooks
-  -> Indexer
-  -> Scoring Engine
-  -> Anchor Program
-  -> Dashboard + SDK
+https://stps-client.vercel.app/
 ```
 
-## Risk layers
+Depois entre com a wallet vinculada ao protocolo.
 
-| Layer | Scope | Example |
-| --- | --- | --- |
-| L1 | Governance Intelligence | Multisig threshold reduced from 5 to 1 |
-| L2 | Asset Legitimacy | Low-liquidity collateral introduced |
-| L3 | Durable Nonce Watchdog | Suspicious pre-signed transaction detected |
+> Se você usar outra wallet, o claim pode ser criado, mas a verificação de controle
+> pode cair para `manual_review`.
 
-## Next pages to add
+## 2. Faça claim do protocolo
 
-- Local setup.
-- Scoring Engine API.
-- Anchor certificate account.
-- Indexer event contract.
-- SDK query examples.
+No dashboard, acesse `Protocols` e informe:
+
+- `Program address`: o program ID do protocolo Solana;
+- `Workspace label`: nome opcional para exibição.
+
+O claim cria o vínculo entre a conta do operador e aquele protocolo.
+
+## 3. Verifique controle
+
+O caminho forte hoje verifica:
+
+- wallet assinante igual à upgrade authority do programa; ou
+- wallet assinante presente no signer/admin set conhecido pelo STPS.
+
+Estados possíveis:
+
+| Status | Significado |
+| --- | --- |
+| `claimed` | Protocolo vinculado à conta, ainda sem controle comprovado. |
+| `verified` | Controle comprovado pelo método suportado. |
+| `manual_review` | O STPS não conseguiu provar controle automaticamente. |
+
+## 4. Gere um token do SDK
+
+Na área de tokens do dashboard, crie um token persistente.
+
+O valor bruto aparece apenas uma vez. Guarde como segredo no backend ou CI:
+
+```bash
+STPS_API_TOKEN=stps_...
+```
+
+## 5. Leia os protocolos via SDK
+
+```ts
+import { StpsClient } from "stps-sdk";
+
+const client = new StpsClient({
+  token: process.env.STPS_API_TOKEN!,
+});
+
+const { protocols } = await client.getProtocols();
+
+for (const item of protocols) {
+  console.log(item.protocolAddress, item.protocol.currentScore, item.status);
+}
+```
+
+## Superfícies usadas nesse fluxo
+
+- Dashboard:
+  `https://stps-client.vercel.app/`
+- SDK:
+  pacote `stps-sdk`

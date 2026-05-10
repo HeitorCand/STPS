@@ -1,0 +1,82 @@
+---
+title: API reference
+description: Métodos públicos do StpsClient.
+icon: Braces
+---
+
+## Construtor
+
+```ts
+const client = new StpsClient({
+  token: process.env.STPS_API_TOKEN!,
+  apiUrl: "https://seu-scoring-engine.exemplo.com",
+  timeoutMs: 10_000,
+});
+```
+
+| Opção | Obrigatória | Descrição |
+| --- | --- | --- |
+| `token` | Sim | Token persistente emitido pelo dashboard. |
+| `apiUrl` | Não | URL do Scoring Engine. Usa o ambiente oficial se omitido. |
+| `timeoutMs` | Não | Timeout da request em ms. |
+| `fetchFn` | Não | Implementação custom de `fetch`. |
+
+## `getProfile()`
+
+Retorna usuário, sessão ou token usado na autenticação.
+
+```ts
+const profile = await client.getProfile();
+console.log(profile.user.primaryWalletAddress);
+```
+
+## `getProtocols()`
+
+Lista apenas protocolos vinculados à conta do token.
+
+```ts
+const { count, protocols } = await client.getProtocols();
+```
+
+## `getProtocol(protocolAddress)`
+
+Busca um protocolo específico dentro da conta.
+
+```ts
+const protocol = await client.getProtocol("9Q3ze...");
+```
+
+Retorna erro `404` se o protocolo não estiver vinculado à conta.
+
+## `getScore(protocolAddress)`
+
+Retorna apenas o objeto de score do protocolo.
+
+```ts
+const score = await client.getScore("9Q3ze...");
+console.log(score.currentScore, score.activeFlags);
+```
+
+## `getHistory(protocolAddress)`
+
+Retorna histórico de mudanças do score.
+
+```ts
+const history = await client.getHistory("9Q3ze...");
+```
+
+## `subscribeToAlerts(protocolAddress, onUpdate, options?)`
+
+Faz polling e chama callback quando score, flags ou método de verificação mudam.
+
+```ts
+const stop = client.subscribeToAlerts(
+  "9Q3ze...",
+  (protocol) => {
+    console.log(protocol.protocol.currentScore, protocol.status);
+  },
+  { intervalMs: 5000 },
+);
+
+stop();
+```

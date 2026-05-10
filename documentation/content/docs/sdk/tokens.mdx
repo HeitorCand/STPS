@@ -1,0 +1,41 @@
+---
+title: Tokens
+description: Modelo de token persistente usado pelo SDK.
+icon: KeyRound
+---
+
+Tokens do SDK são credenciais persistentes vinculadas à conta STPS.
+
+Eles não são tokens de sessão da wallet.
+
+## Propriedades
+
+- O token não expira automaticamente.
+- O token pode ser revogado no dashboard.
+- O token bruto aparece apenas uma vez, no momento de criação.
+- O banco armazena apenas o hash do token.
+- Cada token enxerga apenas os protocolos vinculados à conta.
+
+## Header usado pelo SDK
+
+```txt
+X-STPS-Token: <token>
+```
+
+## Boas práticas
+
+- Use em backend, CI ou serviço interno.
+- Não exponha em frontend público.
+- Nomeie o token com um label claro, como `backend-prod` ou `ci-monitor`.
+- Revogue tokens que não são mais usados.
+
+## Engine próprio
+
+O token só é válido no Scoring Engine que o emitiu.
+
+Se você usa um `apiUrl` custom no SDK, esse engine precisa ter:
+
+- o mesmo schema de Supabase;
+- os mesmos endpoints de workspace;
+- tokens emitidos naquele ambiente.
+

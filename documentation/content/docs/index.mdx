@@ -1,26 +1,71 @@
 ---
-title: Intro
-description: STPS is a trust validation layer for critical Solana protocol operations.
+title: Visão geral
+description: Plataforma de trust scoring para protocolos Solana, com dashboard privado e SDK autenticado.
 icon: ShieldCheck
 ---
 
 <div className="stps-docs-intro">
   <strong>Solana Trust Protocol Standard</strong>
   <span>
-    STPS assigns a Trust Score from 0 to 100 to DeFi protocols by reading governance,
-    asset legitimacy and latent permission signals before critical execution.
+    STPS atribui um Trust Score de 0 a 100 para protocolos Solana e expõe esse
+    estado em um workspace privado do operador, no dashboard e no SDK.
   </span>
 </div>
 
-STPS exists because a blockchain transaction can be valid and still be unsafe. The protocol operates in that gap: validating risk, rule coherence and operational impact before a governance action, admin permission or critical transaction becomes irreversible.
+STPS é uma plataforma de trust scoring para equipes que operam protocolos na
+Solana. Ele transforma sinais de governança e risco operacional em um certificado
+legível no dashboard e em uma superfície autenticada para integrações via SDK.
 
-## MVP scope
+<section className="stps-docs-hero">
+  <div className="stps-docs-hero__copy">
+    <div className="stps-docs-kicker">Production trust layer</div>
+    <h1>Use STPS as an operator workspace and as an integration surface.</h1>
+    <div className="stps-docs-hero__lede">
+      Teams claim protocol programs, verify control with the linked wallet and
+      issue persistent SDK tokens so backend systems consume the same trust view
+      without exposing operator sessions.
+    </div>
+    <div className="stps-docs-action-row">
+      <a href="https://stps-client.vercel.app/" target="_blank" rel="noreferrer">
+        Open STPS Client
+      </a>
+      <a href="https://www.npmjs.com/package/stps-sdk" target="_blank" rel="noreferrer">
+        Open SDK package
+      </a>
+    </div>
+  </div>
+  <div className="stps-docs-hero__object">
+    <div className="stps-docs-hero__eyebrow">
+      <span>Workspace</span>
+      <strong>Verified operator</strong>
+    </div>
+    <div className="stps-docs-hero__score">
+      <small>Trust score</small>
+      <strong>42</strong>
+      <em>High</em>
+    </div>
+    <div className="stps-docs-hero__flags">
+      <span>TIMELOCK_REMOVED</span>
+      <span>MULTISIG_THRESHOLD_LOWERED</span>
+      <span>UNKNOWN_SIGNER_ADDED</span>
+    </div>
+  </div>
+</section>
 
-- Anchor program for protocol trust certificates.
-- TypeScript Scoring Engine for risk events and score calculation.
-- Indexer or event mock for Helius Webhook style inputs.
-- SDK for querying protocol scores.
-- Dashboard and docs for explaining certificate state, risk flags and score history.
+## O que o STPS mede
+
+O score é do **protocolo**, não de uma wallet e não de uma transação isolada.
+Transações são eventos de entrada que podem alterar o estado de confiança do
+protocolo.
+
+Exemplos de sinais:
+
+- timelock removido ou zerado;
+- threshold de multisig reduzido;
+- signer novo ou desconhecido;
+- uso de chave de emergência;
+- durable nonces e permissões administrativas latentes;
+- sinais de legitimidade de ativos e liquidez.
 
 ## Certificate model
 
@@ -43,7 +88,54 @@ STPS exists because a blockchain transaction can be valid and still be unsafe. T
   </div>
 </div>
 
-## Demo chain of custody
+## O que já está no ar
+
+Você pode usar o STPS hoje por estas superfícies públicas:
+
+- Dashboard: `https://stps-client.vercel.app/`
+- SDK: `https://www.npmjs.com/package/stps-sdk`
+
+## Superfícies principais
+
+O STPS tem cinco superfícies que trabalham juntas:
+
+<div className="stps-docs-surface-grid">
+  <article className="stps-docs-surface-card">
+    <span>01</span>
+    <strong>Indexer</strong>
+    <p>Camada interna de ingestão, parsing e normalização de eventos.</p>
+  </article>
+  <article className="stps-docs-surface-card">
+    <span>02</span>
+    <strong>Scoring Engine</strong>
+    <p>Camada interna de cálculo de score, flags, histórico e workspace.</p>
+  </article>
+  <article className="stps-docs-surface-card">
+    <span>03</span>
+    <strong>Anchor Program</strong>
+    <p>Camada on-chain responsável por persistir os certificados do protocolo.</p>
+  </article>
+  <article className="stps-docs-surface-card">
+    <span>04</span>
+    <strong>Dashboard</strong>
+    <p>Workspace privado para claim, verificação, leitura e operação por conta.</p>
+  </article>
+  <article className="stps-docs-surface-card">
+    <span>05</span>
+    <strong>SDK</strong>
+    <p>Leitura autenticada dos protocolos vinculados ao token persistente da conta.</p>
+  </article>
+</div>
+
+## Fluxo de uso
+
+1. O operador entra com uma wallet Solana.
+2. O operador faz claim do program address do protocolo.
+3. O STPS verifica controle por upgrade authority ou signer/admin conhecido.
+4. O dashboard passa a mostrar apenas protocolos vinculados àquela conta.
+5. O operador cria um token persistente para usar o `stps-sdk`.
+
+## Demo de queda de score
 
 <div className="stps-risk-chain">
   <div>
@@ -63,4 +155,8 @@ STPS exists because a blockchain transaction can be valid and still be unsafe. T
   </div>
 </div>
 
+## Comece por aqui
 
+- Para usar o produto em produção: leia o [Quickstart](/docs/getting-started).
+- Para entender as peças: leia [Arquitetura](/docs/platform/architecture).
+- Para integrar em backend: leia [SDK Quickstart](/docs/sdk/quickstart).

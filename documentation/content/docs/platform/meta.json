@@ -1,0 +1,4 @@
+{
+  "title": "Plataforma",
+  "pages": ["architecture", "operator-workspace", "scoring-engine", "indexer"]
+}

@@ -1,0 +1,50 @@
+---
+title: Workspace do operador
+description: Login por wallet, claim de protocolos, verificação de controle e tokens.
+icon: WalletCards
+---
+
+O dashboard atual não é um catálogo público global. Ele é um workspace privado
+por conta, acessado por assinatura de wallet.
+
+## Login
+
+O login usa challenge assinado pela wallet:
+
+1. O cliente pede um challenge ao backend.
+2. Wallet assina a mensagem.
+3. O cliente envia a assinatura de volta.
+4. Backend cria uma sessão.
+
+## Claim de protocolo
+
+Um claim vincula um `programId` à conta do operador.
+
+Campos principais:
+
+- `protocolAddress`
+- `label`
+- `claimedByWallet`
+- `status`
+- `verificationMethod`
+- `verificationTarget`
+
+## Verificação de controle
+
+O caminho forte atual aceita:
+
+- `upgrade_authority`: a wallet que assinou é a upgrade authority do programa;
+- `known_admin_signer`: a wallet está no conjunto de admin/signers conhecido pelo STPS.
+
+Quando não há prova automática suficiente, o claim vai para `manual_review`.
+
+## Tokens de SDK
+
+Tokens são persistentes e vinculados à conta. Eles não são tokens de sessão.
+
+Propriedades:
+
+- não expiram automaticamente;
+- podem ser revogados;
+- são armazenados no banco apenas por hash;
+- o valor bruto aparece só no momento da criação.

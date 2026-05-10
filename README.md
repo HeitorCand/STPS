@@ -25,6 +25,12 @@ pnpm dev
 
 Para setup completo (Devnet deploy, Helius webhook, etc.) veja [`docs/guides/SETUP.md`](docs/guides/SETUP.md).
 
+Para o estado atual do projeto (workspace privado, claim/verify e tokens persistentes do SDK), veja
+[`docs/PROJECT_CURRENT_STATE.md`](docs/PROJECT_CURRENT_STATE.md).
+
+Versao pt-br:
+[`docs/PROJECT_CURRENT_STATE.pt-BR.md`](docs/PROJECT_CURRENT_STATE.pt-BR.md).
+
 ---
 
 ## SDK — Integração em 2 linhas
