@@ -1,114 +1,132 @@
-import { Link } from 'react-router-dom'
-import heroImg from '../assets/hero.png'
-import stpsLogo from '../assets/stps_logo.svg'
-import './LandingPage.css'
+import { Link } from "react-router-dom";
+import heroImg from "../assets/hero.png";
+import stpsLogo from "../assets/stps_logo.svg";
+import "./LandingPage.css";
 
 const riskEvents = [
   {
-    label: 'Timelock removed',
-    detail: 'Critical governance action without delay window',
-    penalty: '-30',
+    label: "Timelock removed",
+    detail: "Critical governance action without delay window",
+    penalty: "-30",
   },
   {
-    label: 'Threshold lowered',
-    detail: 'Multisig moved from 5 approvals to 1',
-    penalty: '-20',
+    label: "Threshold lowered",
+    detail: "Multisig moved from 5 approvals to 1",
+    penalty: "-20",
   },
   {
-    label: 'Unknown signer',
-    detail: 'New authority added with no reputation history',
-    penalty: '-15',
+    label: "Unknown signer",
+    detail: "New authority added with no reputation history",
+    penalty: "-15",
   },
-]
+];
 
 const riskFlags = [
-  'FLAG_TIMELOCK_REMOVED',
-  'FLAG_MULTISIG_THRESHOLD_LOWERED',
-  'FLAG_UNKNOWN_SIGNER_ADDED',
-]
+  "FLAG_TIMELOCK_REMOVED",
+  "FLAG_MULTISIG_THRESHOLD_LOWERED",
+  "FLAG_UNKNOWN_SIGNER_ADDED",
+];
 
 const layers = [
   {
-    id: 'L1',
-    title: 'Governance Intelligence',
-    copy: 'Detects multisig threshold drops, timelock removals, emergency keys and admin rule changes.',
+    id: "L1",
+    title: "Governance Intelligence",
+    copy: "Detects multisig threshold drops, timelock removals, emergency keys and admin rule changes.",
   },
   {
-    id: 'L2',
-    title: 'Asset Legitimacy',
-    copy: 'Flags new collateral, thin liquidity, holder concentration and suspicious market activity.',
+    id: "L2",
+    title: "Asset Legitimacy",
+    copy: "Flags new collateral, thin liquidity, holder concentration and suspicious market activity.",
   },
   {
-    id: 'L3',
-    title: 'Durable Nonce Watchdog',
-    copy: 'Surfaces latent permissions from pre-signed operations that can execute later.',
+    id: "L3",
+    title: "Durable Nonce Watchdog",
+    copy: "Surfaces latent permissions from pre-signed operations that can execute later.",
   },
-]
+];
 
 const useCases = [
-  'Protocol-scoped monitoring',
-  'Wallet-verified control',
-  'Governance risk review',
-  'Persistent SDK access tokens',
-  'Certificate inspection',
-  'Pre-execution trust checks',
-]
+  "Protocol-scoped monitoring",
+  "Wallet-verified control",
+  "Governance risk review",
+  "Persistent SDK access tokens",
+  "Certificate inspection",
+  "Pre-execution trust checks",
+];
 
 const timeline = [
-  { time: '00:00', score: '85', label: 'Baseline certificate issued', delta: 'baseline' },
-  { time: '11:06', score: '65', label: 'Multisig threshold reduced', delta: '-20' },
-  { time: '23:00', score: '42', label: 'Timelock removed, signer added', delta: '-23' },
-]
+  {
+    time: "00:00",
+    score: "85",
+    label: "Baseline certificate issued",
+    delta: "baseline",
+  },
+  {
+    time: "11:06",
+    score: "65",
+    label: "Multisig threshold reduced",
+    delta: "-20",
+  },
+  {
+    time: "23:00",
+    score: "42",
+    label: "Timelock removed, signer added",
+    delta: "-23",
+  },
+];
 
 const custodySteps = [
   {
-    step: '01',
-    title: 'Operator workspace',
-    detail: 'Protocol teams sign in with the linked wallet and work only inside their own claimed surface.',
+    step: "01",
+    title: "Operator workspace",
+    detail:
+      "Protocol teams sign in with the linked wallet and work only inside their own claimed surface.",
   },
   {
-    step: '02',
-    title: 'Protocol operations',
-    detail: 'Claim, verify and inspect score, flags, timeline and certificate at the protocol level.',
+    step: "02",
+    title: "Protocol operations",
+    detail:
+      "Claim, verify and inspect score, flags, timeline and certificate at the protocol level.",
   },
   {
-    step: '03',
-    title: 'SDK token access',
-    detail: 'Persistent account tokens let backend services read only the protocols attached to that account.',
+    step: "03",
+    title: "SDK token access",
+    detail:
+      "Persistent account tokens let backend services read only the protocols attached to that account.",
   },
-]
+];
 
 const workspaceSteps = [
   {
-    id: '01',
-    title: 'Sign in with the operator wallet',
-    copy: 'The login flow creates a private STPS session for the wallet that controls the protocol or is formally linked to it.',
+    id: "01",
+    title: "Sign in with the operator wallet",
+    copy: "The login flow creates a private STPS session for the wallet that controls the protocol or is formally linked to it.",
   },
   {
-    id: '02',
-    title: 'Claim the program address',
-    copy: 'The workspace becomes protocol-specific. Teams monitor only the programs attached to their account.',
+    id: "02",
+    title: "Claim the program address",
+    copy: "The workspace becomes protocol-specific. Teams monitor only the programs attached to their account.",
   },
   {
-    id: '03',
-    title: 'Generate SDK access when needed',
-    copy: 'Operators can create persistent account tokens so trusted services consume the same certificate view without exposing the wallet session.',
+    id: "03",
+    title: "Generate SDK access when needed",
+    copy: "Operators can create persistent account tokens so trusted services consume the same certificate view without exposing the wallet session.",
   },
-]
+];
 
 const heroNotes = [
-  'Wallet-gated workspace',
-  'Protocol-specific certificate view',
-  'Persistent SDK token access',
-]
+  "Wallet-gated workspace",
+  "Protocol-specific certificate view",
+  "Persistent SDK token access",
+];
 
 type LandingPageProps = {
-  isSignedIn: boolean
-}
+  isSignedIn: boolean;
+};
 
 export function LandingPage({ isSignedIn }: LandingPageProps) {
-  const workspaceHref = isSignedIn ? '/dashboard' : '/login'
-  const workspaceLabel = isSignedIn ? 'Open dashboard' : 'Open workspace'
+  const workspaceHref = isSignedIn ? "/dashboard" : "/login";
+  const workspaceLabel = isSignedIn ? "Open dashboard" : "Open workspace";
 
   return (
     <div className="landing-page">
@@ -124,7 +142,11 @@ export function LandingPage({ isSignedIn }: LandingPageProps) {
               <a href="#workspace">Workspace</a>
               <a href="#demo">Demo</a>
               <a href="#developers">SDK</a>
-              <a href="https://heitorcand.github.io/STPS/" target="_blank" rel="noreferrer">
+              <a
+                href="https:// miguelclaret.github.io/STPS/"
+                target="_blank"
+                rel="noreferrer"
+              >
                 Docs
               </a>
               <a href="#faq">FAQ</a>
@@ -158,11 +180,14 @@ export function LandingPage({ isSignedIn }: LandingPageProps) {
                 <span>Private</span>
                 <strong>operator trust workspace</strong>
               </div>
-              <h1>Trust certificates for protocols before users take the risk.</h1>
+              <h1>
+                Trust certificates for protocols before users take the risk.
+              </h1>
               <p className="hero-copy">
-                STPS turns protocol trust into an operator surface. Teams sign in with the linked
-                wallet, claim the program they manage, verify control and expose the same protocol
-                certificate through persistent SDK tokens when automation needs it.
+                STPS turns protocol trust into an operator surface. Teams sign
+                in with the linked wallet, claim the program they manage, verify
+                control and expose the same protocol certificate through
+                persistent SDK tokens when automation needs it.
               </p>
               <div className="hero-actions">
                 <Link className="primary-action" to={workspaceHref}>
@@ -179,7 +204,10 @@ export function LandingPage({ isSignedIn }: LandingPageProps) {
               </div>
             </div>
 
-            <div className="live-console" aria-label="Live trust certificate preview">
+            <div
+              className="live-console"
+              aria-label="Live trust certificate preview"
+            >
               <div className="console-header">
                 <span>Operator workspace</span>
                 <strong>Claimed protocol</strong>
@@ -196,7 +224,10 @@ export function LandingPage({ isSignedIn }: LandingPageProps) {
                 <span>workspace</span>
                 <strong>dRiftyHA39MWEi3m9...cn33UH</strong>
               </div>
-              <div className="certificate-fields" aria-label="Certificate metadata">
+              <div
+                className="certificate-fields"
+                aria-label="Certificate metadata"
+              >
                 <span>
                   <small>Claim status</small>
                   <strong>Verified</strong>
@@ -214,9 +245,9 @@ export function LandingPage({ isSignedIn }: LandingPageProps) {
                 <span className="risk-badge">High risk</span>
               </div>
               <div className="score-line" aria-hidden="true">
-                <span style={{ width: '85%' }} />
-                <span style={{ width: '65%' }} />
-                <span style={{ width: '42%' }} />
+                <span style={{ width: "85%" }} />
+                <span style={{ width: "65%" }} />
+                <span style={{ width: "42%" }} />
               </div>
               <ul className="event-list">
                 {riskEvents.map((event) => (
@@ -238,7 +269,11 @@ export function LandingPage({ isSignedIn }: LandingPageProps) {
           </div>
         </section>
 
-        <section className="custody-band" id="model" aria-label="STPS operator flow">
+        <section
+          className="custody-band"
+          id="model"
+          aria-label="STPS operator flow"
+        >
           <div className="custody-heading">
             <p className="eyebrow">Workspace model</p>
             <h2>The trust layer is now an operator product.</h2>
@@ -277,9 +312,10 @@ export function LandingPage({ isSignedIn }: LandingPageProps) {
             <p className="eyebrow">Operator workspace</p>
             <h2>One entrypoint for the team that operates the protocol.</h2>
             <p>
-              Public trust still matters, but the core product now lives in a private operator
-              surface. Teams enter with the governance-linked wallet, claim the program and extend
-              the same certificate trail into the SDK only after access is explicitly created.
+              Public trust still matters, but the core product now lives in a
+              private operator surface. Teams enter with the governance-linked
+              wallet, claim the program and extend the same certificate trail
+              into the SDK only after access is explicitly created.
             </p>
           </div>
           <div className="workspace-grid">
@@ -294,11 +330,15 @@ export function LandingPage({ isSignedIn }: LandingPageProps) {
           <div className="workspace-cta">
             <div>
               <p className="eyebrow">Access model</p>
-              <strong>{isSignedIn ? 'Your workspace session is active.' : 'Start with wallet sign-in.'}</strong>
+              <strong>
+                {isSignedIn
+                  ? "Your workspace session is active."
+                  : "Start with wallet sign-in."}
+              </strong>
               <p>
                 {isSignedIn
-                  ? 'Go straight to the claimed-protocol dashboard and continue from your account workspace.'
-                  : 'The login route issues a wallet challenge, then unlocks claim, verification and SDK token flows in the dashboard.'}
+                  ? "Go straight to the claimed-protocol dashboard and continue from your account workspace."
+                  : "The login route issues a wallet challenge, then unlocks claim, verification and SDK token flows in the dashboard."}
               </p>
             </div>
             <Link className="workspace-cta__action" to={workspaceHref}>
@@ -312,8 +352,8 @@ export function LandingPage({ isSignedIn }: LandingPageProps) {
             <p className="eyebrow">Risk pipeline</p>
             <h2>One score, three independent checks.</h2>
             <p>
-              The scoring engine receives normalized events, applies transparent deductions and
-              writes the resulting certificate through Anchor.
+              The scoring engine receives normalized events, applies transparent
+              deductions and writes the resulting certificate through Anchor.
             </p>
           </div>
           <div className="layer-grid">
@@ -349,8 +389,8 @@ export function LandingPage({ isSignedIn }: LandingPageProps) {
             <p className="eyebrow">Demo scenario</p>
             <h2>A valid transaction can still be unsafe.</h2>
             <p>
-              The MVP simulates a Drift-like protocol where governance changes lower the score
-              before the dangerous operation reaches users.
+              The MVP simulates a Drift-like protocol where governance changes
+              lower the score before the dangerous operation reaches users.
             </p>
           </div>
           <div className="timeline">
@@ -370,11 +410,16 @@ export function LandingPage({ isSignedIn }: LandingPageProps) {
             <p className="eyebrow">SDK access</p>
             <h2>Use the same protocol view outside the dashboard.</h2>
             <p>
-              The SDK now consumes account-scoped access. Operators create a persistent token in
-              the dashboard, then backend services read only the protocols linked to that account.
+              The SDK now consumes account-scoped access. Operators create a
+              persistent token in the dashboard, then backend services read only
+              the protocols linked to that account.
             </p>
             <div className="section-actions">
-              <a href="https://heitorcand.github.io/STPS/" target="_blank" rel="noreferrer">
+              <a
+                href="https:// miguelclaret.github.io/STPS/"
+                target="_blank"
+                rel="noreferrer"
+              >
                 Read docs
               </a>
             </div>
@@ -400,22 +445,23 @@ const score = await client.getScore(protocols[0].protocolAddress);`}</code>
             <article>
               <h3>Does STPS block transactions?</h3>
               <p>
-                No. STPS exposes trust signals so protocols, wallets and dApps can decide how to
-                gate critical actions.
+                No. STPS exposes trust signals so protocols, wallets and dApps
+                can decide how to gate critical actions.
               </p>
             </article>
             <article>
               <h3>Who can see a protocol in the dashboard?</h3>
               <p>
-                The operator workspace is account-scoped. After sign-in, teams see only the
-                protocols they claimed through that account.
+                The operator workspace is account-scoped. After sign-in, teams
+                see only the protocols they claimed through that account.
               </p>
             </article>
             <article>
               <h3>How does the SDK access work?</h3>
               <p>
-                Operators generate a persistent token in the dashboard, then use it in `stps-sdk`
-                to read the same account-linked protocol surface outside the UI.
+                Operators generate a persistent token in the dashboard, then use
+                it in `stps-sdk` to read the same account-linked protocol
+                surface outside the UI.
               </p>
             </article>
           </div>
@@ -427,5 +473,5 @@ const score = await client.getScore(protocols[0].protocolAddress);`}</code>
         </footer>
       </main>
     </div>
-  )
+  );
 }

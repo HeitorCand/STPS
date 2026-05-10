@@ -1,17 +1,17 @@
-import { useEffect, useState } from 'react'
-import type { ApiToken } from '../../types/stps'
+import { useEffect, useState } from "react";
+import type { ApiToken } from "../../types/stps";
 
 type TokensPageProps = {
-  tokens: ApiToken[]
-  creating: boolean
-  revokingId: string | null
-  draftLabel: string
-  revealedToken: string | null
-  onDraftLabelChange: (value: string) => void
-  onCreateToken: () => void
-  onDismissRevealedToken: () => void
-  onRevokeToken: (tokenId: string) => void
-}
+  tokens: ApiToken[];
+  creating: boolean;
+  revokingId: string | null;
+  draftLabel: string;
+  revealedToken: string | null;
+  onDraftLabelChange: (value: string) => void;
+  onCreateToken: () => void;
+  onDismissRevealedToken: () => void;
+  onRevokeToken: (tokenId: string) => void;
+};
 
 export function TokensPage({
   tokens,
@@ -24,23 +24,23 @@ export function TokensPage({
   onDismissRevealedToken,
   onRevokeToken,
 }: TokensPageProps) {
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (!copied) return
-    const timeout = window.setTimeout(() => setCopied(false), 1800)
-    return () => window.clearTimeout(timeout)
-  }, [copied])
+    if (!copied) return;
+    const timeout = window.setTimeout(() => setCopied(false), 1800);
+    return () => window.clearTimeout(timeout);
+  }, [copied]);
 
   const handleCopyRevealedToken = async () => {
-    if (!revealedToken) return
+    if (!revealedToken) return;
     try {
-      await navigator.clipboard.writeText(revealedToken)
-      setCopied(true)
+      await navigator.clipboard.writeText(revealedToken);
+      setCopied(true);
     } catch {
-      setCopied(false)
+      setCopied(false);
     }
-  }
+  };
 
   return (
     <section className="workspace-page">
@@ -49,8 +49,9 @@ export function TokensPage({
           <p className="eyebrow">Tokens</p>
           <h1>SDK access tokens</h1>
           <p>
-            Generate persistent account tokens for the SDK. The raw token is shown once at
-            creation time, then only metadata remains available in the workspace.
+            Generate persistent account tokens for the SDK. The raw token is
+            shown once at creation time, then only metadata remains available in
+            the workspace.
           </p>
         </div>
       </div>
@@ -59,8 +60,8 @@ export function TokensPage({
         <form
           className="token-create"
           onSubmit={(event) => {
-            event.preventDefault()
-            onCreateToken()
+            event.preventDefault();
+            onCreateToken();
           }}
         >
           <div className="section-title">
@@ -68,8 +69,8 @@ export function TokensPage({
             <strong>SDK access</strong>
           </div>
           <p className="token-create__copy">
-            Use a label to identify where this token will run, for example CI, backend or internal
-            monitor.
+            Use a label to identify where this token will run, for example CI,
+            backend or internal monitor.
           </p>
           <label>
             <span>Token label</span>
@@ -81,8 +82,12 @@ export function TokensPage({
               disabled={creating}
             />
           </label>
-          <button type="submit" className="primary-inline-button" disabled={creating}>
-            {creating ? 'Creating...' : 'Create token'}
+          <button
+            type="submit"
+            className="primary-inline-button"
+            disabled={creating}
+          >
+            {creating ? "Creating..." : "Create token"}
           </button>
         </form>
 
@@ -99,12 +104,12 @@ const client = new StpsClient({
 });`}</code>
           </pre>
           <p className="token-guide__copy">
-            Tokens stay attached to this account until you revoke them. Use them only in trusted
-            environments.
+            Tokens stay attached to this account until you revoke them. Use them
+            only in trusted environments.
           </p>
           <a
             className="token-guide__link"
-            href="https://heitorcand.github.io/STPS/"
+            href="https:// miguelclaret.github.io/STPS/"
             target="_blank"
             rel="noreferrer"
           >
@@ -120,19 +125,27 @@ const client = new StpsClient({
               <p className="eyebrow">Created now</p>
               <h2>Copy this token now</h2>
             </div>
-            <button type="button" className="page-action" onClick={onDismissRevealedToken}>
+            <button
+              type="button"
+              className="page-action"
+              onClick={onDismissRevealedToken}
+            >
               Dismiss
             </button>
           </div>
           <p className="token-reveal__copy">
-            This is the only time STPS shows the raw token value. After you dismiss it, the
-            dashboard keeps only the metadata.
+            This is the only time STPS shows the raw token value. After you
+            dismiss it, the dashboard keeps only the metadata.
           </p>
           <div className="token-reveal__value">
             <code>{revealedToken}</code>
           </div>
-          <button type="button" className="page-action" onClick={() => void handleCopyRevealedToken()}>
-            {copied ? 'Copied' : 'Copy token'}
+          <button
+            type="button"
+            className="page-action"
+            onClick={() => void handleCopyRevealedToken()}
+          >
+            {copied ? "Copied" : "Copy token"}
           </button>
         </section>
       ) : null}
@@ -149,7 +162,7 @@ const client = new StpsClient({
                 <div className="token-card__head">
                   <div>
                     <span className="eyebrow">Token label</span>
-                    <strong>{token.label ?? 'Unlabeled token'}</strong>
+                    <strong>{token.label ?? "Unlabeled token"}</strong>
                   </div>
                   <button
                     type="button"
@@ -157,7 +170,7 @@ const client = new StpsClient({
                     disabled={revokingId === token.id}
                     onClick={() => onRevokeToken(token.id)}
                   >
-                    {revokingId === token.id ? 'Revoking...' : 'Revoke'}
+                    {revokingId === token.id ? "Revoking..." : "Revoke"}
                   </button>
                 </div>
                 <dl className="token-card__meta">
@@ -167,7 +180,7 @@ const client = new StpsClient({
                   </div>
                   <div>
                     <dt>Last used</dt>
-                    <dd>{token.lastUsedAt ?? 'Not used yet'}</dd>
+                    <dd>{token.lastUsedAt ?? "Not used yet"}</dd>
                   </div>
                 </dl>
               </article>
@@ -176,10 +189,13 @@ const client = new StpsClient({
         ) : (
           <div className="empty-state">
             <strong>No SDK token created</strong>
-            <p>Create the first token to let an external service read the protocols attached to this account.</p>
+            <p>
+              Create the first token to let an external service read the
+              protocols attached to this account.
+            </p>
           </div>
         )}
       </section>
     </section>
-  )
+  );
 }
