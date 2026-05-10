@@ -109,7 +109,7 @@ const client = new StpsClient({
           </p>
           <a
             className="token-guide__link"
-            href="https:// miguelclaret.github.io/STPS/"
+            href="https://miguelclaret.github.io/STPS/"
             target="_blank"
             rel="noreferrer"
           >

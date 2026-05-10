@@ -143,7 +143,7 @@ export function LandingPage({ isSignedIn }: LandingPageProps) {
               <a href="#demo">Demo</a>
               <a href="#developers">SDK</a>
               <a
-                href="https:// miguelclaret.github.io/STPS/"
+                href="https://miguelclaret.github.io/STPS/"
                 target="_blank"
                 rel="noreferrer"
               >
@@ -416,7 +416,7 @@ export function LandingPage({ isSignedIn }: LandingPageProps) {
             </p>
             <div className="section-actions">
               <a
-                href="https:// miguelclaret.github.io/STPS/"
+                href="https://miguelclaret.github.io/STPS/"
                 target="_blank"
                 rel="noreferrer"
               >
