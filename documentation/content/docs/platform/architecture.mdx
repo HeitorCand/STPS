@@ -1,18 +1,19 @@
 ---
-title: Arquitetura
-description: Como Indexer, Scoring Engine, Anchor, Dashboard e SDK trabalham juntos.
+title: Architecture
+description: How the Indexer, Scoring Engine, Anchor, Dashboard, and SDK work together.
 icon: Network
 ---
 
-O STPS é composto por uma cadeia de ingestão, cálculo e consumo do score.
+STPS is built as a pipeline for ingesting signals, computing trust, and exposing
+the resulting state.
 
 <Mermaid
   chart={`
 flowchart LR
-    chain["Signal ingress<br/>Helius + chain activity<br/>Governance, admin e nonce activity entram como matéria-prima observável."]
-    indexer["Normalization<br/>Indexer<br/>Eventos heterogêneos viram uma linguagem comum de risco operacional."]
-    scoring["Decision layer<br/>Scoring Engine<br/>O motor transforma sinais em score, flags, histórico e estado de workspace."]
-    trust["Trust surface<br/>Anchor + Clients<br/>O certificado é persistido on-chain e consumido por dashboard e SDK."]
+    chain["Signal ingress<br/>Helius + chain activity<br/>Governance, admin, and nonce activity enter as observable raw material."]
+    indexer["Normalization<br/>Indexer<br/>Heterogeneous events become a common language for operational risk."]
+    scoring["Decision layer<br/>Scoring Engine<br/>The engine turns signals into score, flags, history, and workspace state."]
+    trust["Trust surface<br/>Anchor + Clients<br/>The certificate is persisted on-chain and consumed by the dashboard and SDK."]
 
     chain --> indexer --> scoring --> trust
 
@@ -27,62 +28,62 @@ flowchart LR
   `}
 />
 
-## Superfícies
+## Surfaces
 
-| Componente | Pasta | Responsabilidade |
+| Component | Folder | Responsibility |
 | --- | --- | --- |
-| Indexer | `packages/indexer` | Receber webhooks e normalizar eventos. |
-| Scoring Engine | `packages/scoring` | Calcular score, flags, histórico e workspace privado. |
-| Anchor Program | `programs/stps` | Persistir o certificado on-chain. |
-| Dashboard | `frontEnd/stps-client` | Login, claim, verificação, tokens e leitura operacional. |
-| SDK | `packages/sdk` | Leitura autenticada dos protocolos da conta. |
+| Indexer | `packages/indexer` | Receive webhooks and normalize events. |
+| Scoring Engine | `packages/scoring` | Compute score, flags, history, and private workspace state. |
+| Anchor Program | `programs/stps` | Persist the certificate on-chain. |
+| Dashboard | `frontEnd/stps-client` | Login, claim, verification, tokens, and operational reading. |
+| SDK | `packages/sdk` | Authenticated access to account-linked protocols. |
 
-## O que cada bloco resolve
+## What each block solves
 
 ### Indexer
 
-O Indexer existe para isolar o ruído da chain do restante do produto. A cadeia
-real de transações é heterogênea, cheia de formatos e instruções específicas por
-programa. O papel do Indexer é transformar isso em um contrato interno pequeno,
-previsível e estável. Assim, o Scoring Engine não precisa entender cada payload
-bruto da Helius ou cada peculiaridade de parser.
+The Indexer exists to isolate chain noise from the rest of the product. Real
+transactions are heterogeneous, full of program-specific formats and
+instructions. The Indexer turns that into a small, predictable, stable internal
+contract. That keeps the Scoring Engine from having to understand every raw
+Helius payload or every parsing edge case.
 
 ### Scoring Engine
 
-O Scoring Engine é a camada de decisão. Ele pega um evento já normalizado e
-responde três perguntas:
+The Scoring Engine is the decision layer. It takes a normalized event and
+answers three questions:
 
-- isso altera o estado de confiança do protocolo?
-- que flags explicam essa mudança?
-- como esse novo estado deve ser exposto no workspace e no SDK?
+- does this change the trust state of the protocol?
+- which flags explain the change?
+- how should that new state be exposed in the workspace and SDK?
 
-Essa é a camada que dá coerência ao produto, porque centraliza score,
-explicabilidade, histórico e identidade da conta operadora.
+This is the layer that gives the product coherence because it centralizes
+score, explainability, history, and operator account identity.
 
 ### Anchor Program
 
-O programa Anchor dá persistência e verificabilidade ao certificado. Em vez de
-o score existir só como resposta de API, ele também pode ser tratado como estado
-de protocolo, com semântica on-chain. Isso é importante para a tese do STPS,
-porque aproxima o produto de uma certificate authority para operações Solana.
+The Anchor program gives the certificate persistence and verifiability. Instead
+of existing only as an API response, the score also becomes protocol state with
+on-chain semantics. That matters to the STPS thesis because it moves the
+product closer to a certificate authority for Solana operations.
 
 ### Dashboard
 
-O dashboard é a superfície operacional humana. Ele não existe para mostrar um
-catálogo público genérico, mas para servir a equipe que opera um protocolo.
-Ali, a lógica de trust vira workflow: claim, verificação, leitura de score,
-inspeção do certificado e emissão de token para integrações.
+The dashboard is the human operational surface. It does not exist to show a
+generic public catalog. It exists to serve the team operating a protocol. That
+is where trust logic becomes workflow: claim, verification, score reading,
+certificate inspection, and token issuance for integrations.
 
 ### SDK
 
-O SDK é a superfície de automação. Ele pega o mesmo estado que a equipe vê no
-dashboard e o leva para bots, serviços internos, pipelines de CI e monitores.
-O papel dele não é recalcular risco. O papel dele é propagar o estado já
-decidido pelo STPS para outros sistemas.
+The SDK is the automation surface. It takes the same state the team sees in the
+dashboard and carries it into bots, internal services, CI pipelines, and
+monitors. Its role is not to recalculate risk. Its role is to propagate the
+trust state STPS has already decided to other systems.
 
-## Modelo de dados principal
+## Core data model
 
-O objeto central é o certificado do protocolo:
+The central object is the protocol certificate:
 
 - `protocolAddress`
 - `currentScore`
@@ -92,37 +93,37 @@ O objeto central é o certificado do protocolo:
 - `lastUpdate`
 - `history`
 
-Esse estado pode ser mostrado no dashboard, lido pelo SDK e persistido pelo
-programa Anchor.
+That state can be shown in the dashboard, read by the SDK, and persisted by the
+Anchor program.
 
-## Fluxo de score
+## Score flow
 
-1. Um evento de governança acontece na Solana.
-2. A Helius envia o payload para o Indexer.
-3. O Indexer converte o payload em `GovernanceEvent`.
-4. O Scoring Engine recalcula score e flags.
-5. O dashboard e o SDK leem o estado atualizado.
+1. A governance event happens on Solana.
+2. Helius sends the payload to the Indexer.
+3. The Indexer converts the payload into a `GovernanceEvent`.
+4. The Scoring Engine recalculates score and flags.
+5. The dashboard and the SDK read the updated state.
 
-O ponto importante aqui é que o score não nasce de uma chamada manual do
-usuário. Ele nasce de eventos operacionais do protocolo. O dashboard e o SDK
-são consumidores de um estado já consolidado, não a origem desse estado.
+The important point is that the score does not originate from a manual user
+call. It originates from operational protocol events. The dashboard and the SDK
+consume an already consolidated state; they are not the origin of that state.
 
-## Fluxo do operador
+## Operator flow
 
-1. Wallet assina challenge.
-2. Backend cria sessão.
-3. Operador faz claim de protocolo.
-4. Backend verifica controle.
-5. Operador cria tokens persistentes para integrações.
+1. A wallet signs the challenge.
+2. The backend creates a session.
+3. The operator claims the protocol.
+4. The backend verifies control.
+5. The operator creates persistent tokens for integrations.
 
-Esse fluxo separa duas ideias que costumam se misturar:
+This flow separates two ideas that are often mixed together:
 
-- quem controla o protocolo como operador;
-- quem consome o trust state como sistema.
+- who controls the protocol as the operator;
+- who consumes the trust state as a system.
 
-A wallet resolve a primeira. O token persistente resolve a segunda.
+The wallet solves the first. The persistent token solves the second.
 
-## Escrita on-chain
+## On-chain writing
 
-O Scoring Engine registra e atualiza certificados via Anchor como parte do fluxo
-normal do produto.
+The Scoring Engine registers and updates certificates through Anchor as a normal
+part of the product flow.

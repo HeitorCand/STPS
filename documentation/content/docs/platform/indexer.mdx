@@ -1,33 +1,33 @@
 ---
 title: Indexer
-description: Como webhooks da Helius viram eventos de governança para o Scoring Engine.
+description: How Helius webhooks become governance events for the Scoring Engine.
 icon: RadioTower
 ---
 
-O Indexer é o serviço que recebe webhooks, parseia transações e emite eventos
-normalizados para o Scoring Engine.
+The Indexer is the service that receives webhooks, parses transactions, and
+emits normalized events to the Scoring Engine.
 
-Ele existe para impedir que o resto do sistema fique acoplado aos formatos
-brutos da chain ou da Helius.
+It exists to keep the rest of the system from being coupled to raw chain or
+Helius payload formats.
 
 ## Parsers
 
-O Indexer possui parsers para:
+The Indexer includes parsers for:
 
 - Squads;
 - SPL Governance;
 - System nonce.
 
-Cada parser tenta reconhecer um evento de risco e devolver um `GovernanceEvent`.
+Each parser tries to recognize a risk event and return a `GovernanceEvent`.
 
-Isso separa claramente duas responsabilidades:
+This cleanly separates two responsibilities:
 
-- o parser entende a forma da transação;
-- o Scoring Engine entende o impacto do evento.
+- the parser understands the shape of the transaction;
+- the Scoring Engine understands the impact of the event.
 
-## Evento normalizado
+## Normalized event
 
-Formato lógico:
+Logical shape:
 
 ```ts
 type GovernanceEvent = {
@@ -47,18 +47,18 @@ type GovernanceEvent = {
 };
 ```
 
-Esse contrato intermediário é uma peça central do STPS. Ele é o que permite
-trocar parser, adicionar fontes novas ou mudar lógica de ingestão sem ter que
-reescrever o motor de scoring inteiro.
+This intermediate contract is a central STPS building block. It is what allows
+you to swap parsers, add new sources, or change ingestion logic without
+rewriting the entire scoring engine.
 
-## Segurança do webhook
+## Webhook security
 
-Se `HELIUS_WEBHOOK_SECRET` estiver configurado, o Indexer exige segredo no
-header ou query string.
+When a webhook secret is configured, the Indexer requires that secret in the
+request path used by the upstream sender.
 
-## Por que isso importa no produto
+## Why this matters to the product
 
-Sem uma camada de indexação, cada integração teria que entender raw payloads,
-program IDs e formatos diferentes de governança. O Indexer tira essa
-complexidade da superfície pública e deixa o produto mais previsível, tanto
-para o dashboard quanto para o SDK.
+Without an indexing layer, every integration would have to understand raw
+payloads, program IDs, and different governance formats. The Indexer removes
+that complexity from the public product surface and makes the system more
+predictable for both the dashboard and the SDK.

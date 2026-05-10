@@ -1,24 +1,24 @@
 ---
 title: SDK Quickstart
-description: Integração mínima com stps-sdk usando o STPS já publicado.
+description: Minimal integration with stps-sdk using the already published STPS product.
 icon: Package
 ---
 
-Use o SDK quando um backend, bot, monitor ou serviço interno precisa ler os
-protocolos vinculados à conta STPS.
+Use the SDK when a backend, bot, monitor, or internal service needs to read the
+protocols linked to an STPS account.
 
-O SDK não é um motor de scoring embarcado. Ele é um cliente para consumir o
-estado de confiança que o STPS já decidiu.
+The SDK is not an embedded scoring engine. It is a client for consuming trust
+state that STPS has already decided.
 
-## Instalação
+## Installation
 
 ```bash
 npm install stps-sdk
 ```
 
-O pacote publicado está no npm como `stps-sdk`.
+The published package is available on npm as `stps-sdk`.
 
-Página do pacote:
+Package page:
 
 ```txt
 https://www.npmjs.com/package/stps-sdk
@@ -26,23 +26,23 @@ https://www.npmjs.com/package/stps-sdk
 
 ## Token
 
-Crie um token em:
+Create a token in:
 
 ```txt
 /dashboard/tokens
 ```
 
-Guarde como segredo:
+Store it as a secret:
 
 ```bash
 STPS_API_TOKEN=stps_...
 ```
 
-Esse token representa a conta do operador no contexto do SDK. Por isso o SDK
-enxerga apenas os protocolos vinculados àquela conta, e não um catálogo público
-global.
+That token represents the operator account in the SDK context. Because of that,
+the SDK only sees the protocols linked to that account, not a global public
+catalog.
 
-## Primeiro script
+## First script
 
 ```ts
 import { StpsClient } from "stps-sdk";
@@ -63,36 +63,36 @@ for (const item of protocols) {
 }
 ```
 
-## Usando o produto oficial
+## Using the official product
 
-Se você não passar `apiUrl`, o SDK usa automaticamente o ambiente oficial do
-STPS. Para consumo padrão do produto, esse é o caminho esperado.
+If you do not pass `apiUrl`, the SDK automatically uses the official STPS
+environment. For standard product consumption, that is the expected path.
 
-## Usando um Scoring Engine próprio
+## Using your own Scoring Engine
 
-Se você roda seu próprio engine:
+If you run your own engine:
 
 ```ts
 const client = new StpsClient({
   token: process.env.STPS_API_TOKEN!,
-  apiUrl: "https://meu-scoring-engine.exemplo.com",
+  apiUrl: "https://my-scoring-engine.example.com",
 });
 ```
 
-Nesse cenário, o seu engine precisa reproduzir a mesma lógica conceitual do
-produto:
+In that scenario, your engine needs to reproduce the same conceptual product
+logic:
 
-- manter um modelo de certificado por protocolo;
-- expor uma camada de conta/workspace;
-- aceitar tokens persistentes vinculados à conta;
-- devolver apenas os protocolos permitidos para aquele token;
-- manter compatibilidade com o contrato de leitura do SDK.
+- maintain a certificate model per protocol;
+- expose an account/workspace layer;
+- accept persistent tokens tied to the account;
+- return only the protocols allowed for that token;
+- remain compatible with the SDK read contract.
 
-Em outras palavras, apontar o `apiUrl` para outro lugar não é só trocar host.
-Você está dizendo que existe outro STPS compatível na outra ponta.
+In other words, pointing `apiUrl` elsewhere is not just swapping hosts. You are
+stating that another STPS-compatible system exists on the other end.
 
-O front só mostrará o engine próprio se ele também estiver configurado para usar
-essa URL. O SDK não muda automaticamente a URL do dashboard.
+The frontend will only show a custom engine if it is also configured to use
+that URL. The SDK does not automatically change the dashboard URL.
 
 ## Health check
 
@@ -100,4 +100,4 @@ essa URL. O SDK não muda automaticamente a URL do dashboard.
 const ok = await client.isHealthy();
 ```
 
-Esse método valida API disponível e token aceito.
+This method validates that the API is available and the token is accepted.

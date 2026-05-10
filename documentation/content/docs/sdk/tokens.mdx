@@ -1,41 +1,40 @@
 ---
 title: Tokens
-description: Modelo de token persistente usado pelo SDK.
+description: Persistent token model used by the SDK.
 icon: KeyRound
 ---
 
-Tokens do SDK são credenciais persistentes vinculadas à conta STPS.
+SDK tokens are persistent credentials tied to an STPS account.
 
-Eles não são tokens de sessão da wallet.
+They are not wallet session tokens.
 
-## Propriedades
+## Properties
 
-- O token não expira automaticamente.
-- O token pode ser revogado no dashboard.
-- O token bruto aparece apenas uma vez, no momento de criação.
-- O banco armazena apenas o hash do token.
-- Cada token enxerga apenas os protocolos vinculados à conta.
+- The token does not expire automatically.
+- The token can be revoked in the dashboard.
+- The raw token is shown only once, at creation time.
+- The database stores only the token hash.
+- Each token can see only the protocols linked to the account.
 
-## Header usado pelo SDK
+## Header used by the SDK
 
 ```txt
 X-STPS-Token: <token>
 ```
 
-## Boas práticas
+## Best practices
 
-- Use em backend, CI ou serviço interno.
-- Não exponha em frontend público.
-- Nomeie o token com um label claro, como `backend-prod` ou `ci-monitor`.
-- Revogue tokens que não são mais usados.
+- Use it in backend systems, CI, or internal services.
+- Do not expose it in a public frontend.
+- Name the token with a clear label, such as `backend-prod` or `ci-monitor`.
+- Revoke tokens that are no longer used.
 
-## Engine próprio
+## Custom engine
 
-O token só é válido no Scoring Engine que o emitiu.
+The token is only valid in the Scoring Engine that issued it.
 
-Se você usa um `apiUrl` custom no SDK, esse engine precisa ter:
+If you use a custom `apiUrl` in the SDK, that engine must have:
 
-- o mesmo schema de Supabase;
-- os mesmos endpoints de workspace;
-- tokens emitidos naquele ambiente.
-
+- the same Supabase schema;
+- the same workspace-facing contract;
+- tokens issued in that environment.

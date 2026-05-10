@@ -1,40 +1,41 @@
 ---
-title: Adoção
-description: Como pensar o uso do STPS em produção e em ambientes próprios.
+title: Adoption
+description: How to think about STPS in production and in self-hosted environments.
 icon: Rocket
 ---
 
-## Superfícies públicas
+## Public surfaces
 
-Hoje o STPS é consumido publicamente por duas superfícies:
+Today STPS is publicly consumed through two surfaces:
 
 - Dashboard: `https://stps-client.vercel.app/`
 - SDK: `https://www.npmjs.com/package/stps-sdk`
 
-## Como consumir o produto
+## How to consume the product
 
-- Operador humano:
+- Human operator:
   use `https://stps-client.vercel.app/`
-- Integração backend:
-  use `stps-sdk` com token persistente
+- Backend integration:
+  use `stps-sdk` with a persistent token
 
-## Ambiente próprio
+## Self-hosted environment
 
-Se uma equipe quiser rodar um Scoring Engine próprio, ela pode:
+If a team wants to run its own Scoring Engine, it can:
 
-- subir o backend STPS com seu próprio banco;
-- emitir seus próprios tokens persistentes;
-- apontar o SDK para seu `apiUrl`;
-- opcionalmente apontar um front próprio para esse mesmo engine.
+- run the STPS backend with its own database;
+- issue its own persistent tokens;
+- point the SDK to its own `apiUrl`;
+- optionally point a custom frontend to the same engine.
 
-O dashboard publicado em `stps-client.vercel.app` continua mostrando o engine
-configurado nele, não o engine que o SDK do usuário escolher por conta própria.
+The dashboard published at `stps-client.vercel.app` will continue to show the
+engine configured for that app, not the engine a user chooses independently in
+their SDK integration.
 
-## Escolha de superfície
+## Surface choice
 
-Na prática, há dois caminhos de adoção:
+In practice, there are two adoption paths:
 
-- usar o dashboard oficial para operação humana;
-- usar o SDK para integração em serviços internos, bots ou monitores.
+- use the official dashboard for human operations;
+- use the SDK for integration into internal services, bots, or monitors.
 
-O resto da arquitetura existe para sustentar essas duas superfícies.
+The rest of the architecture exists to support those two surfaces.

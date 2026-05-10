@@ -1,52 +1,52 @@
 ---
 title: Scoring Engine
-description: Motor que calcula score, organiza o workspace e emite tokens para o SDK.
+description: Engine that computes score, coordinates the workspace, and issues SDK tokens.
 icon: Gauge
 ---
 
-O Scoring Engine é o backend principal do STPS. Ele calcula o score dos
-protocolos e também serve o workspace autenticado do operador.
+The Scoring Engine is the main STPS backend. It calculates protocol score and
+also serves the authenticated operator workspace.
 
-## Responsabilidades
+## Responsibilities
 
-- receber eventos normalizados;
-- recalcular score, risk level, flags e histórico;
-- registrar protocolo quando necessário;
-- autenticar wallet sessions;
-- armazenar claims e status de verificação;
-- emitir tokens persistentes para SDK;
-- escrever atualizações do certificado no programa Anchor.
+- receive normalized events;
+- recalculate score, risk level, flags, and history;
+- register protocols when needed;
+- authenticate wallet sessions;
+- store claims and verification state;
+- issue persistent SDK tokens;
+- write certificate updates to the Anchor program.
 
-## O que ele coordena
+## What it coordinates
 
-O Scoring Engine cumpre quatro papéis ao mesmo tempo:
+The Scoring Engine plays four roles at once:
 
-- recebe eventos já normalizados;
-- calcula score, flags e histórico;
-- mantém o workspace privado por conta;
-- emite tokens persistentes para consumo pelo SDK.
+- it receives already-normalized events;
+- it calculates score, flags, and history;
+- it maintains the private per-account workspace;
+- it issues persistent tokens for SDK consumption.
 
-Na prática, ele é o ponto onde a lógica técnica do STPS vira produto. O Indexer
-entrega sinais. O Anchor persiste estado. Mas é o Scoring Engine que decide o
-que um protocolo “é” naquele momento em termos de confiança operacional.
+In practice, this is the point where STPS technical logic becomes product.
+The Indexer delivers signals. Anchor persists state. But the Scoring Engine is
+the layer that decides what a protocol currently is in operational trust terms.
 
-## Como ele pensa o risco
+## How it thinks about risk
 
-O motor não trata score como um número solto. Ele trata score como uma soma de
-causas:
+The engine does not treat score as an isolated number. It treats score as a sum
+of causes:
 
-- o evento entra;
-- o motor identifica a categoria de risco;
-- flags são ativadas;
-- o histórico ganha uma razão legível;
-- o certificado final é atualizado.
+- an event arrives;
+- the engine identifies the risk category;
+- flags are activated;
+- history receives a readable reason;
+- the final certificate is updated.
 
-Isso é importante porque o valor do STPS não está só em dizer que um protocolo
-está em `42`. O valor está em conseguir explicar por que esse `42` aconteceu.
+This matters because the value of STPS is not just saying a protocol is at `42`.
+The value is being able to explain why that `42` happened.
 
-## Eventos de governança
+## Governance events
 
-O Scoring Engine entende eventos como:
+The Scoring Engine understands events such as:
 
 - `MULTISIG_THRESHOLD_CHANGED`
 - `TIMELOCK_CHANGED`
@@ -56,27 +56,27 @@ O Scoring Engine entende eventos como:
 - `NONCE_ACCOUNT_CREATED`
 - `NONCE_ADVANCED`
 
-Esses eventos não são úteis isoladamente. O papel do motor é interpretar o
-impacto operacional deles no contexto do protocolo e transformá-los em flags e
-mudanças de score legíveis.
+These events are not useful in isolation. The job of the engine is to interpret
+their operational impact in protocol context and turn them into readable flags
+and score changes.
 
-## Workspace do operador
+## Operator workspace
 
-Além do score, o Scoring Engine também sustenta a identidade de conta do
-produto. Isso inclui:
+In addition to score, the Scoring Engine also supports the account identity
+layer of the product. That includes:
 
-- sessão do operador;
-- claims de protocolos;
-- status de verificação;
-- emissão e revogação de tokens persistentes.
+- operator sessions;
+- protocol claims;
+- verification status;
+- issuing and revoking persistent tokens.
 
-Essa escolha reduz fragmentação. Em vez de existir um “backend de risco” e um
-“backend de conta” separados, o STPS concentra o estado da conta perto do
-estado do certificado, porque os dois fazem parte do mesmo fluxo de uso.
+This reduces fragmentation. Instead of separate “risk backend” and “account
+backend” systems, STPS keeps account state close to certificate state because
+they belong to the same product flow.
 
 ## Supabase
 
-O schema cria:
+The schema defines:
 
 - users;
 - wallet identities;
@@ -85,6 +85,6 @@ O schema cria:
 - protocol claims;
 - api tokens.
 
-O banco existe para sustentar relacionamento e acesso, não para substituir a
-chain. Claims, sessões e tokens vivem no workspace. O certificado continua
-sendo o objeto de confiança central do produto.
+The database exists to support relationships and access, not to replace the
+chain. Claims, sessions, and tokens live in the workspace. The certificate
+remains the central trust object of the product.

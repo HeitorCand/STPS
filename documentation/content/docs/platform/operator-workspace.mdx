@@ -1,26 +1,26 @@
 ---
-title: Workspace do operador
-description: Login por wallet, claim de protocolos, verificação de controle e tokens.
+title: Operator workspace
+description: Wallet login, protocol claims, control verification, and SDK tokens.
 icon: WalletCards
 ---
 
-O dashboard atual não é um catálogo público global. Ele é um workspace privado
-por conta, acessado por assinatura de wallet.
+The current dashboard is not a global public catalog. It is a private
+account-based workspace accessed through wallet signatures.
 
 ## Login
 
-O login usa challenge assinado pela wallet:
+Login uses a wallet-signed challenge:
 
-1. O cliente pede um challenge ao backend.
-2. Wallet assina a mensagem.
-3. O cliente envia a assinatura de volta.
-4. Backend cria uma sessão.
+1. The client requests a challenge from the backend.
+2. The wallet signs the message.
+3. The client sends the signature back.
+4. The backend creates a session.
 
-## Claim de protocolo
+## Protocol claim
 
-Um claim vincula um `programId` à conta do operador.
+A claim links a `programId` to the operator account.
 
-Campos principais:
+Core fields:
 
 - `protocolAddress`
 - `label`
@@ -29,22 +29,22 @@ Campos principais:
 - `verificationMethod`
 - `verificationTarget`
 
-## Verificação de controle
+## Control verification
 
-O caminho forte atual aceita:
+The current strong path accepts:
 
-- `upgrade_authority`: a wallet que assinou é a upgrade authority do programa;
-- `known_admin_signer`: a wallet está no conjunto de admin/signers conhecido pelo STPS.
+- `upgrade_authority`: the signing wallet is the program upgrade authority;
+- `known_admin_signer`: the wallet belongs to the admin/signer set known by STPS.
 
-Quando não há prova automática suficiente, o claim vai para `manual_review`.
+When there is not enough automatic proof, the claim moves to `manual_review`.
 
-## Tokens de SDK
+## SDK tokens
 
-Tokens são persistentes e vinculados à conta. Eles não são tokens de sessão.
+Tokens are persistent and tied to the account. They are not session tokens.
 
-Propriedades:
+Properties:
 
-- não expiram automaticamente;
-- podem ser revogados;
-- são armazenados no banco apenas por hash;
-- o valor bruto aparece só no momento da criação.
+- they do not expire automatically;
+- they can be revoked;
+- they are stored in the database only as hashes;
+- the raw value is shown only at creation time.

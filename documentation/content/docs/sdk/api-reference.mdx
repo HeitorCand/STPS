@@ -1,29 +1,29 @@
 ---
 title: API reference
-description: Métodos públicos do StpsClient.
+description: Public methods exposed by StpsClient.
 icon: Braces
 ---
 
-## Construtor
+## Constructor
 
 ```ts
 const client = new StpsClient({
   token: process.env.STPS_API_TOKEN!,
-  apiUrl: "https://seu-scoring-engine.exemplo.com",
+  apiUrl: "https://your-scoring-engine.example.com",
   timeoutMs: 10_000,
 });
 ```
 
-| Opção | Obrigatória | Descrição |
+| Option | Required | Description |
 | --- | --- | --- |
-| `token` | Sim | Token persistente emitido pelo dashboard. |
-| `apiUrl` | Não | URL do Scoring Engine. Usa o ambiente oficial se omitido. |
-| `timeoutMs` | Não | Timeout da request em ms. |
-| `fetchFn` | Não | Implementação custom de `fetch`. |
+| `token` | Yes | Persistent token issued by the dashboard. |
+| `apiUrl` | No | Scoring Engine URL. Uses the official environment when omitted. |
+| `timeoutMs` | No | Request timeout in ms. |
+| `fetchFn` | No | Custom `fetch` implementation. |
 
 ## `getProfile()`
 
-Retorna usuário, sessão ou token usado na autenticação.
+Returns the user and session or token context used for authentication.
 
 ```ts
 const profile = await client.getProfile();
@@ -32,7 +32,7 @@ console.log(profile.user.primaryWalletAddress);
 
 ## `getProtocols()`
 
-Lista apenas protocolos vinculados à conta do token.
+Lists only the protocols linked to the token account.
 
 ```ts
 const { count, protocols } = await client.getProtocols();
@@ -40,17 +40,17 @@ const { count, protocols } = await client.getProtocols();
 
 ## `getProtocol(protocolAddress)`
 
-Busca um protocolo específico dentro da conta.
+Fetches a specific protocol inside the account scope.
 
 ```ts
 const protocol = await client.getProtocol("9Q3ze...");
 ```
 
-Retorna erro `404` se o protocolo não estiver vinculado à conta.
+Returns `404` if the protocol is not linked to the account.
 
 ## `getScore(protocolAddress)`
 
-Retorna apenas o objeto de score do protocolo.
+Returns only the score object for the protocol.
 
 ```ts
 const score = await client.getScore("9Q3ze...");
@@ -59,7 +59,7 @@ console.log(score.currentScore, score.activeFlags);
 
 ## `getHistory(protocolAddress)`
 
-Retorna histórico de mudanças do score.
+Returns the score change history.
 
 ```ts
 const history = await client.getHistory("9Q3ze...");
@@ -67,7 +67,7 @@ const history = await client.getHistory("9Q3ze...");
 
 ## `subscribeToAlerts(protocolAddress, onUpdate, options?)`
 
-Faz polling e chama callback quando score, flags ou método de verificação mudam.
+Polls and calls the callback when score, flags, or verification method change.
 
 ```ts
 const stop = client.subscribeToAlerts(
