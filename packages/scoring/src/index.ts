@@ -33,6 +33,7 @@ import {
   type UserRecord,
 } from "./onboarding-store.js";
 import { submitRegisterProtocol } from "./on-chain.js";
+import { rehydrateStoreFromChain } from "./rehydrate.js";
 import { isKnownAdminSigner } from "./protocol-catalog.js";
 import { deriveRiskLevel } from "./risk-level.js";
 import { getProtocol, hasProtocol, initProtocol, listProtocols } from "./store.js";
@@ -846,13 +847,25 @@ export function buildScoringApp() {
 const isMain = process.argv[1]?.endsWith("index.ts") || process.argv[1]?.endsWith("index.js");
 if (isMain) {
   const port = Number(process.env.PORT ?? 3001);
-  buildScoringApp().listen(port, () => {
-    logInfo("scoring_engine_started", {
-      port,
-      program_id: process.env.ANCHOR_PROGRAM_ID,
-      rpc: process.env.SOLANA_RPC_URL,
-      on_chain_disabled: (process.env.DISABLE_ON_CHAIN ?? "").toLowerCase() === "true",
-      onboarding_configured: isSupabaseConfigured(),
+  const app = buildScoringApp();
+
+  // Rehydrate store from on-chain state before accepting requests.
+  // Failures are caught inside rehydrateStoreFromChain and must not block startup.
+  rehydrateStoreFromChain()
+    .then(() => {
+      app.listen(port, () => {
+        logInfo("scoring_engine_started", {
+          port,
+          program_id: process.env.ANCHOR_PROGRAM_ID,
+          rpc: process.env.SOLANA_RPC_URL,
+          on_chain_disabled: (process.env.DISABLE_ON_CHAIN ?? "").toLowerCase() === "true",
+          onboarding_configured: isSupabaseConfigured(),
+        });
+      });
+    })
+    .catch((err) => {
+      // Should never reach here (rehydrate catches internally), but just in case:
+      logError("startup_failed", err);
+      process.exit(1);
     });
-  });
 }
