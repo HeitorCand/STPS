@@ -35,6 +35,7 @@ build/
 !tsconfig*.json
 !turbo.json
 !Anchor.toml
+!frontEnd/stps-client/vercel.json
 !target/idl/*.json
 !target/types/*.json
 !documentation/content/docs/**/meta.json
