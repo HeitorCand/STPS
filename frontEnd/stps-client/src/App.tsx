@@ -70,7 +70,7 @@ function App() {
   }, [])
 
   const loadWorkspace = useCallback(
-    async (token: string | null, mode: 'initial' | 'refresh' = 'initial') => {
+    async (token: string | null) => {
       setStatusMessage('Connecting to production Scoring Engine')
 
       const health = await fetchScoringHealth().catch(() => null)
@@ -131,7 +131,7 @@ function App() {
   useEffect(() => {
     const storedToken = window.localStorage.getItem(SESSION_TOKEN_KEY)
     setSessionToken(storedToken)
-    void loadWorkspace(storedToken, 'initial')
+    void loadWorkspace(storedToken)
   }, [loadWorkspace])
 
   const selected = useMemo(
@@ -155,7 +155,7 @@ function App() {
       window.localStorage.setItem(SESSION_TOKEN_KEY, session.token)
       setSessionToken(session.token)
       setSessionWallet(session.session.walletAddress)
-      await loadWorkspace(session.token, 'refresh')
+      await loadWorkspace(session.token)
       navigate('/dashboard/overview', { replace: true })
     } catch (error) {
       setAuthStatus('signed_out')
@@ -182,7 +182,7 @@ function App() {
       setClaimAddress('')
       setClaimLabel('')
       await disconnectInjectedWallet()
-      await loadWorkspace(null, 'refresh')
+      await loadWorkspace(null)
       navigate('/login', { replace: true })
       logoutInFlightRef.current = false
     }
@@ -197,7 +197,7 @@ function App() {
   }, [authStatus, handleDisconnect])
 
   const handleRefresh = useCallback(async () => {
-    await loadWorkspace(sessionToken, 'refresh')
+    await loadWorkspace(sessionToken)
   }, [loadWorkspace, sessionToken])
 
   const handleClaim = useCallback(async () => {
