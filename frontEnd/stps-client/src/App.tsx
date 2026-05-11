@@ -12,9 +12,7 @@ import {
   logout,
   revokeApiToken,
   requestAuthChallenge,
-  requestVerificationChallenge,
   verifyAuthChallenge,
-  verifyClaimControl,
 } from './lib/api'
 import { toProtocol } from './lib/adapters'
 import {
@@ -40,7 +38,9 @@ function App() {
   const [selectedAddress, setSelectedAddress] = useState(mockProtocols[0].address)
   const [statusMessage, setStatusMessage] = useState('Connecting to production Scoring Engine')
   const [authStatus, setAuthStatus] = useState<AuthStatus>('checking')
-  const [sessionToken, setSessionToken] = useState<string | null>(null)
+  const [sessionToken, setSessionToken] = useState<string | null>(() =>
+    window.localStorage.getItem(SESSION_TOKEN_KEY),
+  )
   const [sessionWallet, setSessionWallet] = useState<string | null>(null)
   const [apiTokens, setApiTokens] = useState<ApiToken[]>([])
   const [tokenLabel, setTokenLabel] = useState('')
@@ -50,7 +50,6 @@ function App() {
   const [claimAddress, setClaimAddress] = useState('')
   const [claimLabel, setClaimLabel] = useState('')
   const [claiming, setClaiming] = useState(false)
-  const [verifyingAddress, setVerifyingAddress] = useState<string | null>(null)
   const [walletAvailable, setWalletAvailable] = useState(false)
   const logoutInFlightRef = useRef(false)
 
@@ -85,8 +84,8 @@ function App() {
         setAuthStatus('signed_out')
         setStatusMessage(
           walletAvailable
-            ? 'Connect a wallet to access your protocol workspace.'
-            : 'Install a Solana wallet to access your protocol workspace.',
+            ? 'Connect a wallet to access your protocol watchlist.'
+            : 'Install a Solana wallet to access your protocol watchlist.',
         )
         return
       }
@@ -111,8 +110,8 @@ function App() {
         setAuthStatus('signed_in')
         setStatusMessage(
           managedProtocols.length > 0
-            ? `Loaded ${managedProtocols.length} claimed protocol${managedProtocols.length === 1 ? '' : 's'} for your account`
-            : 'Signed in. Claim a program address to create your first STPS workspace.',
+            ? `Loaded ${managedProtocols.length} monitored protocol${managedProtocols.length === 1 ? '' : 's'} for your account`
+            : 'Signed in. Add a program address to start monitoring STPS scores.',
         )
       } catch (error) {
         window.localStorage.removeItem(SESSION_TOKEN_KEY)
@@ -129,10 +128,17 @@ function App() {
   )
 
   useEffect(() => {
-    const storedToken = window.localStorage.getItem(SESSION_TOKEN_KEY)
-    setSessionToken(storedToken)
-    void loadWorkspace(storedToken)
-  }, [loadWorkspace])
+    let cancelled = false
+    window.setTimeout(() => {
+      if (!cancelled) {
+        void loadWorkspace(sessionToken)
+      }
+    }, 0)
+
+    return () => {
+      cancelled = true
+    }
+  }, [loadWorkspace, sessionToken])
 
   const selected = useMemo(
     () => protocols.find((protocol) => protocol.address === selectedAddress) ?? null,
@@ -214,40 +220,18 @@ function App() {
       setSelectedAddress(protocol.address)
       setClaimAddress('')
       setClaimLabel('')
-      setStatusMessage(`Claimed ${protocol.name}. Verify control to upgrade this workspace.`)
+      setStatusMessage(`${protocol.name} added to your monitored protocols.`)
     } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : 'Could not claim protocol')
+      const message = error instanceof Error ? error.message : 'Could not add protocol'
+      setStatusMessage(
+        message === 'already_tracked' || message === 'already_claimed'
+          ? 'This protocol is already in your watchlist.'
+          : message,
+      )
     } finally {
       setClaiming(false)
     }
   }, [claimAddress, claimLabel, sessionToken])
-
-  const handleVerifySelected = useCallback(async () => {
-    if (!sessionToken || !selected) return
-
-    try {
-      setVerifyingAddress(selected.address)
-      const challenge = await requestVerificationChallenge(sessionToken, selected.id)
-      const signature = await signUtf8Message(challenge.message)
-      const response = await verifyClaimControl(sessionToken, selected.id, {
-        challengeId: challenge.challengeId,
-        signature,
-      })
-      const updated = toProtocol(response.claim)
-      setProtocols((current) =>
-        current.map((protocol) => (protocol.id === updated.id ? updated : protocol)),
-      )
-      setStatusMessage(
-        updated.claimStatus === 'verified'
-          ? `${updated.name} is now verified.`
-          : `${updated.name} moved to manual review.`,
-      )
-    } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : 'Could not verify protocol control')
-    } finally {
-      setVerifyingAddress(null)
-    }
-  }, [selected, sessionToken])
 
   const handleCreateToken = useCallback(async () => {
     if (!sessionToken) return
@@ -285,7 +269,7 @@ function App() {
   )
 
   const showEmptyWorkspace = authStatus === 'signed_in' && protocols.length === 0
-  const verifiedCount = protocols.filter((protocol) => protocol.claimStatus === 'verified').length
+  const liveCount = protocols.filter((protocol) => protocol.dataStatus === 'live').length
 
   return (
     <Routes>
@@ -330,7 +314,7 @@ function App() {
                 <div className="workspace-toolbar">
                   <div className="toolbar-meta">
                     <span className="eyebrow">Private workspace</span>
-                    <strong>{verifiedCount} verified protocol{verifiedCount === 1 ? '' : 's'}</strong>
+                    <strong>{liveCount} live score{liveCount === 1 ? '' : 's'}</strong>
                   </div>
                 </div>
                 <Outlet />
@@ -361,12 +345,10 @@ function App() {
               claimAddress={claimAddress}
               claimLabel={claimLabel}
               claiming={claiming}
-              verifying={verifyingAddress === selected?.address}
               onSelectProtocol={setSelectedAddress}
               onClaimAddressChange={setClaimAddress}
               onClaimLabelChange={setClaimLabel}
               onSubmitClaim={() => void handleClaim()}
-              onVerifySelected={() => void handleVerifySelected()}
             />
           }
         />

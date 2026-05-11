@@ -15,8 +15,8 @@ export function OverviewPage({
   selectedAddress,
   onSelectProtocol,
 }: OverviewPageProps) {
-  const verifiedCount = protocols.filter((protocol) => protocol.claimStatus === 'verified').length
-  const reviewCount = protocols.filter((protocol) => protocol.claimStatus === 'manual_review').length
+  const liveCount = protocols.filter((protocol) => protocol.dataStatus === 'live').length
+  const pendingCount = protocols.filter((protocol) => protocol.dataStatus !== 'live').length
   const attentionCount = protocols.filter(
     (protocol) =>
       protocol.dataStatus !== 'live' ||
@@ -27,11 +27,10 @@ export function OverviewPage({
     (protocol) =>
       protocol.dataStatus !== 'live' ||
       protocol.riskLevel === 'High' ||
-      protocol.riskLevel === 'Critical' ||
-      protocol.claimStatus !== 'verified',
+      protocol.riskLevel === 'Critical',
   )
   const stableProtocols = protocols.filter(
-    (protocol) => protocol.riskLevel === 'Low' && protocol.claimStatus === 'verified',
+    (protocol) => protocol.riskLevel === 'Low' && protocol.dataStatus === 'live',
   )
 
   return (
@@ -40,8 +39,8 @@ export function OverviewPage({
         <div>
           <h1>Overview</h1>
           <p>
-            Keep the claimed protocols for this account in view, prioritize the ones that need
-            verification and inspect the current certificate before taking action.
+            Keep your monitored protocols in view, prioritize risky scores and inspect the
+            current certificate before taking action.
           </p>
         </div>
       </div>
@@ -50,17 +49,17 @@ export function OverviewPage({
         <article className="summary-card">
           <span className="eyebrow">Protocols</span>
           <strong>{protocols.length}</strong>
-          <p>Claimed programs currently attached to this account workspace.</p>
+          <p>Programs currently attached to this account watchlist.</p>
         </article>
         <article className="summary-card">
-          <span className="eyebrow">Verified</span>
-          <strong>{verifiedCount}</strong>
-          <p>Protocols that already passed the current control verification checks.</p>
+          <span className="eyebrow">Live</span>
+          <strong>{liveCount}</strong>
+          <p>Protocols with a calculated score and current risk band.</p>
         </article>
         <article className="summary-card">
-          <span className="eyebrow">Review</span>
-          <strong>{reviewCount}</strong>
-          <p>Claims that need another verification pass or a manual operator review.</p>
+          <span className="eyebrow">Pending</span>
+          <strong>{pendingCount}</strong>
+          <p>Protocols waiting for a calculated trust state from the server.</p>
         </article>
         <article className="summary-card">
           <span className="eyebrow">Attention</span>
@@ -79,9 +78,7 @@ export function OverviewPage({
                   <h2>{selectedProtocol.name}</h2>
                 </div>
                 <div className="overview-focus__pills">
-                  <span className={`claim-pill ${selectedProtocol.claimStatus}`}>
-                    {selectedProtocol.claimStatus}
-                  </span>
+                  <span className="claim-pill claimed">monitored</span>
                   <span className={`risk-pill ${riskClass(selectedProtocol.riskLevel)}`}>
                     {selectedProtocol.dataStatus === 'live' ? selectedProtocol.riskLevel : 'Not calculated'}
                   </span>
@@ -91,12 +88,8 @@ export function OverviewPage({
               <p className="overview-focus__copy">{selectedProtocol.recommendation}</p>
               <div className="overview-focus__facts">
                 <div>
-                  <span>Verification</span>
-                  <strong>
-                    {selectedProtocol.verificationMethod
-                      ? selectedProtocol.verificationMethod.replaceAll('_', ' ')
-                      : 'Awaiting proof'}
-                  </strong>
+                  <span>Monitoring</span>
+                  <strong>Added to watchlist</strong>
                 </div>
                 <div>
                   <span>Current score</span>
@@ -117,12 +110,8 @@ export function OverviewPage({
               <p className="eyebrow">Current posture</p>
               <ul className="overview-checklist">
                 <li>
-                  <strong>Claim state</strong>
-                  <span>
-                    {selectedProtocol.claimStatus === 'verified'
-                      ? 'Operator proof is already attached to this workspace.'
-                      : 'This protocol still needs operator proof or review.'}
-                  </span>
+                  <strong>Watchlist state</strong>
+                  <span>This account is following the protocol score and certificate state.</span>
                 </li>
                 <li>
                   <strong>Flags in view</strong>
@@ -137,7 +126,7 @@ export function OverviewPage({
                 <li>
                   <strong>Where to act</strong>
                   <span>
-                    Use the protocols area for certificate, flags, timeline and verification
+                    Use the protocols area for certificate, flags, timeline and watchlist
                     actions.
                   </span>
                 </li>
@@ -166,7 +155,7 @@ export function OverviewPage({
                         <small>{protocol.address}</small>
                       </span>
                       <span className="overview-row__meta">
-                        <em className={`claim-pill ${protocol.claimStatus}`}>{protocol.claimStatus}</em>
+                        <em className="claim-pill claimed">monitored</em>
                         <em className={`risk-pill ${riskClass(protocol.riskLevel)}`}>
                           {protocol.dataStatus === 'live' ? protocol.riskLevel : 'Not calculated'}
                         </em>
@@ -177,7 +166,7 @@ export function OverviewPage({
               ) : (
                 <div className="empty-state compact">
                   <strong>No protocol currently requires intervention</strong>
-                  <p>The claimed protocols in this workspace are verified and sitting in a lower risk band.</p>
+                  <p>Your monitored protocols are currently sitting outside the high-risk bands.</p>
                 </div>
               )}
             </section>
@@ -202,7 +191,7 @@ export function OverviewPage({
                         <small>{protocol.address}</small>
                       </span>
                       <span className="overview-row__meta">
-                        <em className={`claim-pill ${protocol.claimStatus}`}>{protocol.claimStatus}</em>
+                        <em className="claim-pill claimed">monitored</em>
                         <em className={`risk-pill ${riskClass(protocol.riskLevel)}`}>
                           {protocol.dataStatus === 'live' ? protocol.riskLevel : 'Not calculated'}
                         </em>
@@ -213,7 +202,7 @@ export function OverviewPage({
               ) : (
                 <div className="empty-state compact">
                   <strong>No fully stable protocol yet</strong>
-                  <p>Verified low-risk protocols will appear here as the workspace matures.</p>
+                  <p>Low-risk protocols with live scores will appear here as the watchlist matures.</p>
                 </div>
               )}
             </section>
@@ -224,7 +213,7 @@ export function OverviewPage({
         <section className="workspace-empty workspace-empty--single" aria-label="Empty workspace">
           <div>
             <p className="eyebrow">No protocols yet</p>
-            <h2>This workspace has no claimed protocol.</h2>
+            <h2>This workspace has no monitored protocol.</h2>
             <p>Go to the protocols area to register the first program for this account.</p>
           </div>
         </section>

@@ -30,10 +30,10 @@ export function LoginPage({
         </div>
         <div className="auth-hero__copy">
           <p className="eyebrow">STPS Client</p>
-          <h1>Access your protocol control workspace.</h1>
+          <h1>Access your protocol monitoring workspace.</h1>
           <p>
-            Sign in with the wallet linked to your protocol and continue into the private
-            STPS workspace for claiming and verification.
+            Sign in with a wallet and continue into a private STPS workspace for tracking
+            protocol scores, flags and certificates.
           </p>
         </div>
       </section>
@@ -44,8 +44,8 @@ export function LoginPage({
             <p className="eyebrow">Wallet sign-in</p>
             <h2>Connect your Solana wallet</h2>
             <p>
-              Use the wallet that controls or is formally linked to your protocol. STPS uses
-              this signature flow to create your private workspace and verify protocol control.
+              STPS uses this signature flow to create your private workspace. You can add
+              any protocol you want to monitor after sign-in.
             </p>
           </div>
 
@@ -74,10 +74,10 @@ export function LoginPage({
           </button>
 
           <div className="auth-card__warning" role="note">
-            <strong>Use the wallet linked to your protocol.</strong>
+            <strong>Your wallet identifies the watchlist.</strong>
             <p>
-              If you sign in with another address, the claim may still be created but control
-              verification can move the workspace to manual review.
+              Protocols you add are attached to this account so you can return to the same
+              monitoring view later.
             </p>
           </div>
 

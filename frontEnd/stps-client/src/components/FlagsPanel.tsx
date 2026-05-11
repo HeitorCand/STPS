@@ -14,9 +14,8 @@ export function FlagsPanel({ protocol }: FlagsPanelProps) {
         </div>
         <div className="empty-state">
           <strong>Trust state not calculated</strong>
-          <p>The server did not return a computed protocol state for this claim yet.</p>
+          <p>The server did not return a computed protocol state for this program yet.</p>
         </div>
-        {protocol.verificationNotes ? <p className="verification-note">{protocol.verificationNotes}</p> : null}
         <p className="recommendation">{protocol.recommendation}</p>
       </section>
     )
@@ -33,7 +32,7 @@ export function FlagsPanel({ protocol }: FlagsPanelProps) {
           {protocol.activeFlags.map((flag) => (
             <li key={flag}>
               <span>{flag}</span>
-              <small>Requires operator review</small>
+              <small>Requires review before relying on this protocol</small>
             </li>
           ))}
         </ul>
@@ -43,7 +42,6 @@ export function FlagsPanel({ protocol }: FlagsPanelProps) {
           <p>The protocol is still monitored for governance, asset and nonce changes.</p>
         </div>
       )}
-      {protocol.verificationNotes ? <p className="verification-note">{protocol.verificationNotes}</p> : null}
       <p className="recommendation">{protocol.recommendation}</p>
     </section>
   )

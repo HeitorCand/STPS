@@ -35,11 +35,7 @@ export function toProtocol(claim: ApiClaim): Protocol {
     id: claim.id,
     name: protocolName(claim.protocolAddress, claim.label),
     address: claim.protocolAddress,
-    authority:
-      claim.verificationTarget ??
-      (claim.verificationMethod === 'known_admin_signer'
-        ? 'Known signer'
-        : 'Scoring Engine PDA'),
+    authority: 'Scoring Engine',
     score: claim.protocol.currentScore,
     riskLevel: claim.protocol.riskLevel,
     lastUpdate: claim.protocol.lastUpdate === null ? null : formatTime(claim.protocol.lastUpdate),
@@ -48,11 +44,9 @@ export function toProtocol(claim: ApiClaim): Protocol {
     recommendation:
       !isCalculated
         ? 'Trust score not calculated. The server did not restore a computed state for this protocol yet.'
-        : claim.status === 'verified'
-        ? 'Protocol control verified. Continue monitoring governance, asset and nonce changes.'
         : claim.protocol.activeFlags.length > 0
           ? 'Review active flags before approving critical operations.'
-          : 'Complete verification to turn this claim into a monitored certificate workspace.',
+          : 'Protocol added to your watchlist. Continue monitoring governance, asset and nonce changes.',
     history: isCalculated ? toHistory(claim.protocol) : [],
     claimStatus: claim.status,
     verificationMethod: claim.verificationMethod,

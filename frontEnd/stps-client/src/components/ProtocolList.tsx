@@ -16,8 +16,8 @@ export function ProtocolList({ protocols, selectedAddress, onSelect }: ProtocolL
       </div>
       {protocols.length === 0 ? (
         <div className="empty-state compact">
-          <strong>No claimed protocols</strong>
-          <p>Claim a program address and verify control to start a private monitoring workspace.</p>
+          <strong>No monitored protocols</strong>
+          <p>Add a program address to start tracking its score, flags and certificate state.</p>
         </div>
       ) : null}
       <div className="protocol-stack">
@@ -34,7 +34,7 @@ export function ProtocolList({ protocols, selectedAddress, onSelect }: ProtocolL
               <small>{protocol.address}</small>
             </span>
             <span className="protocol-meta">
-              <em className={`claim-pill ${protocol.claimStatus}`}>{protocol.claimStatus}</em>
+              <em className="claim-pill claimed">monitored</em>
               <em className={`risk-pill ${riskClass(protocol.riskLevel)}`}>
                 {protocol.dataStatus === 'live' ? protocol.riskLevel : 'Not calculated'}
               </em>

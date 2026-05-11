@@ -12,12 +12,10 @@ type ProtocolsPageProps = {
   claimAddress: string
   claimLabel: string
   claiming: boolean
-  verifying: boolean
   onSelectProtocol: (address: string) => void
   onClaimAddressChange: (value: string) => void
   onClaimLabelChange: (value: string) => void
   onSubmitClaim: () => void
-  onVerifySelected: () => void
 }
 
 export function ProtocolsPage({
@@ -27,32 +25,22 @@ export function ProtocolsPage({
   claimAddress,
   claimLabel,
   claiming,
-  verifying,
   onSelectProtocol,
   onClaimAddressChange,
   onClaimLabelChange,
   onSubmitClaim,
-  onVerifySelected,
 }: ProtocolsPageProps) {
   return (
     <section className="workspace-page">
       <div className="page-header page-header--split">
         <div>
           <p className="eyebrow">Protocols</p>
-          <h1>Claim and operate protocols</h1>
+          <h1>Monitor protocols</h1>
           <p>
-            Register new programs, verify control for selected claims and keep the protocol list
-            attached to this account organized.
+            Add any program address you want to follow and keep its score, flags, certificate
+            and history attached to this account.
           </p>
         </div>
-        <button
-          type="button"
-          className="page-action"
-          disabled={!selectedProtocol || selectedProtocol.claimStatus === 'verified' || verifying}
-          onClick={onVerifySelected}
-        >
-          {verifying ? 'Verifying...' : 'Verify selected protocol'}
-        </button>
       </div>
 
       <section className="protocols-layout">
@@ -64,8 +52,8 @@ export function ProtocolsPage({
           }}
         >
           <div className="section-title">
-            <span>Claim protocol</span>
-            <strong>Operator route</strong>
+            <span>Add protocol</span>
+            <strong>Watchlist</strong>
           </div>
           <label>
             <span>Program address</span>
@@ -78,7 +66,7 @@ export function ProtocolsPage({
             />
           </label>
           <label>
-            <span>Workspace label</span>
+            <span>Watchlist label</span>
             <input
               type="text"
               placeholder="Optional display name"
@@ -92,7 +80,7 @@ export function ProtocolsPage({
             className="primary-inline-button"
             disabled={claiming || claimAddress.trim().length < 32}
           >
-            {claiming ? 'Claiming...' : 'Claim protocol'}
+            {claiming ? 'Adding...' : 'Add protocol'}
           </button>
         </form>
 

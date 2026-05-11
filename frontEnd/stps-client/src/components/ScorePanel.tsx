@@ -29,8 +29,8 @@ export function ScorePanel({ protocol }: ScorePanelProps) {
       </div>
       <p>
         {isCalculated
-          ? `${riskCopy[protocol.riskLevel!]}. Claim status: ${protocol.claimStatus}. Last update: ${protocol.lastUpdate}.`
-          : 'Trust score not calculated. The server did not restore a computed protocol state for this claim yet.'}
+          ? `${riskCopy[protocol.riskLevel!]}. Last update: ${protocol.lastUpdate}.`
+          : 'Trust score not calculated. The server did not restore a computed protocol state for this program yet.'}
       </p>
     </section>
   )

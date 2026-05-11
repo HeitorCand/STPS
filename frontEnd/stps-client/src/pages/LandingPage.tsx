@@ -47,7 +47,7 @@ const layers = [
 
 const useCases = [
   "Protocol-scoped monitoring",
-  "Wallet-verified control",
+  "Personal protocol watchlists",
   "Governance risk review",
   "Persistent SDK access tokens",
   "Certificate inspection",
@@ -78,15 +78,15 @@ const timeline = [
 const custodySteps = [
   {
     step: "01",
-    title: "Operator workspace",
+    title: "Private watchlist",
     detail:
-      "Protocol teams sign in with the linked wallet and work only inside their own claimed surface.",
+      "Users sign in with a wallet and keep the protocols they care about in one workspace.",
   },
   {
     step: "02",
-    title: "Protocol operations",
+    title: "Protocol monitoring",
     detail:
-      "Claim, verify and inspect score, flags, timeline and certificate at the protocol level.",
+      "Add any program address and inspect score, flags, timeline and certificate at the protocol level.",
   },
   {
     step: "03",
@@ -99,24 +99,24 @@ const custodySteps = [
 const workspaceSteps = [
   {
     id: "01",
-    title: "Sign in with the operator wallet",
-    copy: "The login flow creates a private STPS session for the wallet that controls the protocol or is formally linked to it.",
+    title: "Sign in with a wallet",
+    copy: "The login flow creates a private STPS session for the account that owns the watchlist.",
   },
   {
     id: "02",
-    title: "Claim the program address",
-    copy: "The workspace becomes protocol-specific. Teams monitor only the programs attached to their account.",
+    title: "Add the program address",
+    copy: "The workspace becomes a personal monitoring surface for every protocol the user wants to follow.",
   },
   {
     id: "03",
     title: "Generate SDK access when needed",
-    copy: "Operators can create persistent account tokens so trusted services consume the same certificate view without exposing the wallet session.",
+    copy: "Users can create persistent account tokens so trusted services consume the same certificate view without exposing the wallet session.",
   },
 ];
 
 const heroNotes = [
   "Wallet-gated workspace",
-  "Protocol-specific certificate view",
+  "Personal protocol watchlist",
   "Persistent SDK token access",
 ];
 
@@ -178,16 +178,16 @@ export function LandingPage({ isSignedIn }: LandingPageProps) {
               <p className="eyebrow">Solana Trust Protocol Standard</p>
               <div className="hero-stamp" aria-hidden="true">
                 <span>Private</span>
-                <strong>operator trust workspace</strong>
+                <strong>protocol monitoring workspace</strong>
               </div>
               <h1>
                 Trust certificates for protocols before users take the risk.
               </h1>
               <p className="hero-copy">
-                STPS turns protocol trust into an operator surface. Teams sign
-                in with the linked wallet, claim the program they manage, verify
-                control and expose the same protocol certificate through
-                persistent SDK tokens when automation needs it.
+                STPS turns protocol trust into a user-managed watchlist. Sign
+                in with a wallet, add any program address you want to follow and
+                expose the same protocol certificate through persistent SDK
+                tokens when automation needs it.
               </p>
               <div className="hero-actions">
                 <Link className="primary-action" to={workspaceHref}>
@@ -209,15 +209,15 @@ export function LandingPage({ isSignedIn }: LandingPageProps) {
               aria-label="Live trust certificate preview"
             >
               <div className="console-header">
-                <span>Operator workspace</span>
-                <strong>Claimed protocol</strong>
+                <span>Monitoring workspace</span>
+                <strong>Tracked protocol</strong>
               </div>
               <div className="certificate-seal" aria-hidden="true">
                 <span>STPS</span>
                 <strong>
-                  Control
+                  Score
                   <br />
-                  verified
+                  watched
                 </strong>
               </div>
               <div className="certificate-meta">
@@ -229,12 +229,12 @@ export function LandingPage({ isSignedIn }: LandingPageProps) {
                 aria-label="Certificate metadata"
               >
                 <span>
-                  <small>Claim status</small>
-                  <strong>Verified</strong>
+                  <small>Watchlist status</small>
+                  <strong>Monitored</strong>
                 </span>
                 <span>
-                  <small>Verification</small>
-                  <strong>Upgrade authority</strong>
+                  <small>Scope</small>
+                  <strong>Account watchlist</strong>
                 </span>
               </div>
               <div className="score-panel">
@@ -272,11 +272,11 @@ export function LandingPage({ isSignedIn }: LandingPageProps) {
         <section
           className="custody-band"
           id="model"
-          aria-label="STPS operator flow"
+          aria-label="STPS monitoring flow"
         >
           <div className="custody-heading">
             <p className="eyebrow">Workspace model</p>
-            <h2>The trust layer is now an operator product.</h2>
+            <h2>The trust layer is now a monitoring product.</h2>
           </div>
           <div className="custody-rail">
             {custodySteps.map((item) => (
@@ -294,11 +294,11 @@ export function LandingPage({ isSignedIn }: LandingPageProps) {
             </div>
             <div>
               <strong>Wallet</strong>
-              <span>operator sign-in</span>
+              <span>account sign-in</span>
             </div>
             <div>
-              <strong>Claim</strong>
-              <span>protocol-scoped surface</span>
+              <strong>Add</strong>
+              <span>protocol watchlist</span>
             </div>
             <div>
               <strong>SDK token</strong>
@@ -309,13 +309,13 @@ export function LandingPage({ isSignedIn }: LandingPageProps) {
 
         <section className="workspace-band" id="workspace">
           <div className="section-heading">
-            <p className="eyebrow">Operator workspace</p>
-            <h2>One entrypoint for the team that operates the protocol.</h2>
+            <p className="eyebrow">Monitoring workspace</p>
+            <h2>One entrypoint for the protocols a user wants to follow.</h2>
             <p>
               Public trust still matters, but the core product now lives in a
-              private operator surface. Teams enter with the governance-linked
-              wallet, claim the program and extend the same certificate trail
-              into the SDK only after access is explicitly created.
+              private watchlist. Users enter with a wallet, add program
+              addresses and extend the same certificate trail into the SDK only
+              after access is explicitly created.
             </p>
           </div>
           <div className="workspace-grid">
@@ -337,8 +337,8 @@ export function LandingPage({ isSignedIn }: LandingPageProps) {
               </strong>
               <p>
                 {isSignedIn
-                  ? "Go straight to the claimed-protocol dashboard and continue from your account workspace."
-                  : "The login route issues a wallet challenge, then unlocks claim, verification and SDK token flows in the dashboard."}
+                  ? "Go straight to the monitored-protocol dashboard and continue from your account workspace."
+                  : "The login route issues a wallet challenge, then unlocks protocol monitoring and SDK token flows in the dashboard."}
               </p>
             </div>
             <Link className="workspace-cta__action" to={workspaceHref}>
@@ -410,9 +410,9 @@ export function LandingPage({ isSignedIn }: LandingPageProps) {
             <p className="eyebrow">SDK access</p>
             <h2>Use the same protocol view outside the dashboard.</h2>
             <p>
-              The SDK now consumes account-scoped access. Operators create a
+              The SDK now consumes account-scoped access. Users create a
               persistent token in the dashboard, then backend services read only
-              the protocols linked to that account.
+              the protocols attached to that account watchlist.
             </p>
             <div className="section-actions">
               <a
@@ -452,14 +452,14 @@ const score = await client.getScore(protocols[0].protocolAddress);`}</code>
             <article>
               <h3>Who can see a protocol in the dashboard?</h3>
               <p>
-                The operator workspace is account-scoped. After sign-in, teams
-                see only the protocols they claimed through that account.
+                The monitoring workspace is account-scoped. After sign-in, users
+                see only the protocols they added through that account.
               </p>
             </article>
             <article>
               <h3>How does the SDK access work?</h3>
               <p>
-                Operators generate a persistent token in the dashboard, then use
+                Users generate a persistent token in the dashboard, then use
                 it in `stps-sdk` to read the same account-linked protocol
                 surface outside the UI.
               </p>

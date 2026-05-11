@@ -19,7 +19,7 @@ export function CertificatePanel({ protocol }: CertificatePanelProps) {
           <strong>{protocol.address}</strong>
         </div>
         <div>
-          <small>Authority</small>
+          <small>Monitor source</small>
           <strong>{protocol.authority}</strong>
         </div>
         <div>
@@ -31,12 +31,12 @@ export function CertificatePanel({ protocol }: CertificatePanelProps) {
           <strong>{isCalculated ? protocol.riskLevel : 'Server issue'}</strong>
         </div>
         <div>
-          <small>Claim status</small>
-          <strong>{protocol.claimStatus}</strong>
+          <small>Watchlist status</small>
+          <strong>Monitored</strong>
         </div>
         <div>
-          <small>Verification target</small>
-          <strong>{protocol.verificationTarget ?? 'Awaiting proof'}</strong>
+          <small>Account scope</small>
+          <strong>Visible in this workspace</strong>
         </div>
       </div>
       <div className="certificate-seal" aria-hidden="true">
