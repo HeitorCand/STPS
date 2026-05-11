@@ -496,14 +496,16 @@ export async function getClaimByIdForUser(
   return data ? mapClaim(data) : null;
 }
 
-export async function findClaimByProtocolAddress(
+export async function findClaimByProtocolAddressForUser(
   protocolAddress: string,
+  userId: string,
 ): Promise<ProtocolClaimRecord | null> {
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from("protocol_claims")
     .select("*")
     .eq("protocol_address", protocolAddress)
+    .eq("user_id", userId)
     .maybeSingle<DbClaim>();
 
   if (error) throw error;

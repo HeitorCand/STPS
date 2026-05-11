@@ -28,10 +28,10 @@ export type FlagName =
   | "FLAG_PENDING_ADMIN_NONCE"
   | "FLAG_MULTIPLE_ADMIN_NONCES";
 
-/** Wallet verification result attached to a claimed protocol. */
+/** Legacy verification metadata returned by older STPS workspace records. */
 export type VerificationMethod = "upgrade_authority" | "known_admin_signer" | null;
 
-/** Claim status inside the private STPS workspace. */
+/** Watchlist status inside the private STPS workspace. */
 export type ClaimStatus = "claimed" | "verified" | "manual_review";
 
 /** Score state for one protocol inside the authenticated workspace. */
@@ -45,8 +45,8 @@ export interface TrustScoreResponse {
   history: ScoreHistoryEntry[];
 }
 
-/** Claim metadata returned by the authenticated workspace routes. */
-export interface ClaimedProtocol {
+/** Protocol metadata returned by the authenticated account watchlist routes. */
+export interface MonitoredProtocol {
   id: string;
   label: string | null;
   protocolAddress: string;
@@ -61,11 +61,14 @@ export interface ClaimedProtocol {
   protocol: TrustScoreResponse;
 }
 
+/** @deprecated Use MonitoredProtocol. */
+export type ClaimedProtocol = MonitoredProtocol;
+
 /** Authenticated list of protocols bound to the current STPS account. */
 export interface ProtocolListResponse {
   status: "ok";
   count: number;
-  protocols: ClaimedProtocol[];
+  protocols: MonitoredProtocol[];
 }
 
 /** Session user returned by `/api/me`. */

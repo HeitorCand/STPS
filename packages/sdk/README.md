@@ -96,7 +96,7 @@ console.log(profile.session.expiresAt);
 
 ### `getProtocols()`
 
-Returns only the protocols claimed by the authenticated account.
+Returns only the protocols monitored by the authenticated account.
 
 ```typescript
 const { count, protocols } = await client.getProtocols();
@@ -104,7 +104,7 @@ const { count, protocols } = await client.getProtocols();
 protocols.forEach((item) => {
   console.log(item.protocolAddress);
   console.log(item.protocol.currentScore);
-  console.log(item.status); // claimed | verified | manual_review
+  console.log(item.protocol.currentScore);
 });
 ```
 
@@ -112,12 +112,11 @@ protocols.forEach((item) => {
 
 ### `getProtocol(protocolAddress)`
 
-Returns one claimed protocol by address.
+Returns one monitored protocol by address.
 
 ```typescript
 const protocol = await client.getProtocol("9Q3zeMUSuge341M4DkwGDdKJ9fCTAcj8HU77bKfTRtUw");
 
-console.log(protocol.verificationMethod);
 console.log(protocol.protocol.activeFlags);
 ```
 
@@ -127,7 +126,7 @@ Throws `StpsApiError` with `.status = 404` if the protocol is not attached to th
 
 ### `getScore(protocolAddress)`
 
-Returns the trust score object for a protocol already claimed by the authenticated account.
+Returns the trust score object for a protocol already monitored by the authenticated account.
 
 ```typescript
 const score = await client.getScore("9Q3zeMUSuge341M4DkwGDdKJ9fCTAcj8HU77bKfTRtUw");
@@ -141,7 +140,7 @@ console.log(score.activeFlags);
 
 ### `getHistory(protocolAddress)`
 
-Returns the score history for a claimed protocol.
+Returns the score history for a monitored protocol.
 
 ```typescript
 const history = await client.getHistory("9Q3zeMUSuge341M4DkwGDdKJ9fCTAcj8HU77bKfTRtUw");
@@ -165,13 +164,12 @@ Polls the authenticated workspace and calls `onUpdate` when:
 
 - score changes
 - active flags change
-- verification method changes
 
 ```typescript
 const stop = client.subscribeToAlerts(
   "9Q3zeMUSuge341M4DkwGDdKJ9fCTAcj8HU77bKfTRtUw",
   (protocol) => {
-    console.log(protocol.protocol.currentScore, protocol.status);
+    console.log(protocol.protocol.currentScore, protocol.protocol.riskLevel);
   },
   { intervalMs: 5000 },
 );

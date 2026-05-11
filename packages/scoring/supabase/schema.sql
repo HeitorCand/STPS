@@ -54,7 +54,7 @@ create table if not exists public.api_tokens (
 create table if not exists public.protocol_claims (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.users(id) on delete cascade,
-  protocol_address text not null unique,
+  protocol_address text not null,
   label text,
   claimed_by_wallet text not null,
   status text not null default 'claimed' check (status in ('claimed', 'verified', 'manual_review')),
@@ -73,6 +73,12 @@ create index if not exists idx_sessions_token_hash on public.sessions(token_hash
 create index if not exists idx_api_tokens_user_id on public.api_tokens(user_id);
 create index if not exists idx_api_tokens_token_hash on public.api_tokens(token_hash);
 create index if not exists idx_protocol_claims_user_id on public.protocol_claims(user_id);
+
+alter table public.protocol_claims
+drop constraint if exists protocol_claims_protocol_address_key;
+
+create unique index if not exists idx_protocol_claims_user_protocol
+on public.protocol_claims(user_id, protocol_address);
 
 create or replace function public.touch_updated_at()
 returns trigger

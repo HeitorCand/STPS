@@ -1,6 +1,6 @@
 import type {
-  ClaimedProtocol,
   FlagName,
+  MonitoredProtocol,
   ProtocolListResponse,
   RiskLevel,
   ScoreHistoryEntry,
@@ -8,7 +8,6 @@ import type {
   StpsClientOptions,
   StpsProfileResponse,
   TrustScoreResponse,
-  VerificationMethod,
 } from "./types.js";
 
 export { StpsApiError } from "./types.js";
@@ -16,6 +15,7 @@ export type {
   ClaimedProtocol,
   ClaimStatus,
   FlagName,
+  MonitoredProtocol,
   ProtocolListResponse,
   RiskLevel,
   ScoreHistoryEntry,
@@ -115,43 +115,43 @@ export class StpsClient {
   }
 
   /**
-   * Fetch all protocols claimed by the authenticated account.
+   * Fetch all protocols monitored by the authenticated account.
    */
   async getProtocols(): Promise<ProtocolListResponse> {
     return this.request<ProtocolListResponse>("/api/me/protocols");
   }
 
   /**
-   * Fetch one claimed protocol by protocol address.
+   * Fetch one monitored protocol by protocol address.
    *
    * Throws `StpsApiError(404)` when the protocol is not attached to the current account.
    */
-  async getProtocol(protocolAddress: string): Promise<ClaimedProtocol> {
+  async getProtocol(protocolAddress: string): Promise<MonitoredProtocol> {
     const { protocols } = await this.getProtocols();
-    const claimed = protocols.find((item) => item.protocolAddress === protocolAddress);
+    const monitored = protocols.find((item) => item.protocolAddress === protocolAddress);
 
-    if (!claimed) {
+    if (!monitored) {
       const { StpsApiError } = await import("./types.js");
       throw new StpsApiError(
         404,
         { status: "not_found", protocolAddress },
-        `STPS API returned 404 for claimed protocol ${protocolAddress}`,
+        `STPS API returned 404 for monitored protocol ${protocolAddress}`,
       ) as StpsApiErrorType;
     }
 
-    return claimed;
+    return monitored;
   }
 
   /**
-   * Fetch the current trust score for a protocol already claimed by the authenticated account.
+   * Fetch the current trust score for a protocol already monitored by the authenticated account.
    */
   async getScore(protocolAddress: string): Promise<TrustScoreResponse> {
-    const claimed = await this.getProtocol(protocolAddress);
-    return claimed.protocol;
+    const monitored = await this.getProtocol(protocolAddress);
+    return monitored.protocol;
   }
 
   /**
-   * Fetch the full score history for a claimed protocol.
+   * Fetch the full score history for a monitored protocol.
    */
   async getHistory(protocolAddress: string): Promise<ScoreHistoryEntry[]> {
     const score = await this.getScore(protocolAddress);
@@ -173,13 +173,13 @@ export class StpsClient {
   }
 
   /**
-   * Subscribe to score changes for a claimed protocol using polling.
+   * Subscribe to score changes for a monitored protocol using polling.
    *
-   * Calls `onUpdate` whenever the score, flags or verification method changes.
+   * Calls `onUpdate` whenever the score or active flags change.
    */
   subscribeToAlerts(
     protocolAddress: string,
-    onUpdate: (protocol: ClaimedProtocol) => void,
+    onUpdate: (protocol: MonitoredProtocol) => void,
     options: {
       intervalMs?: number;
       onError?: (error: Error) => void;
@@ -192,7 +192,6 @@ export class StpsClient {
 
     let lastScore: number | null = null;
     let lastFlags: string | null = null;
-    let lastVerification: VerificationMethod | undefined;
     let stopped = false;
 
     const poll = async () => {
@@ -207,12 +206,10 @@ export class StpsClient {
 
         if (
           protocol.protocol.currentScore !== lastScore ||
-          flagsKey !== lastFlags ||
-          protocol.verificationMethod !== lastVerification
+          flagsKey !== lastFlags
         ) {
           lastScore = protocol.protocol.currentScore;
           lastFlags = flagsKey;
-          lastVerification = protocol.verificationMethod;
           onUpdate(protocol);
         }
       } catch (error) {

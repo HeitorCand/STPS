@@ -14,7 +14,7 @@ import {
   createAuthChallenge,
   createProtocolClaim,
   createSession,
-  findClaimByProtocolAddress,
+  findClaimByProtocolAddressForUser,
   findOrCreateUserByWallet,
   getActiveChallenge,
   getApiTokenByToken,
@@ -661,10 +661,13 @@ export function buildScoringApp() {
 
     try {
       const body = claimProtocolSchema.parse(req.body);
-      const existingClaim = await findClaimByProtocolAddress(body.protocolAddress);
+      const existingClaim = await findClaimByProtocolAddressForUser(
+        body.protocolAddress,
+        req.user!.id,
+      );
       if (existingClaim) {
         res.status(409).json({
-          status: "already_claimed",
+          status: "already_tracked",
           protocolAddress: body.protocolAddress,
         });
         return;

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { StpsApiError, StpsClient } from "../src/index.js";
-import type { ClaimedProtocol, ProtocolListResponse, StpsProfileResponse, TrustScoreResponse } from "../src/index.js";
+import type { MonitoredProtocol, ProtocolListResponse, StpsProfileResponse, TrustScoreResponse } from "../src/index.js";
 
 const DRIFT = "dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH";
 
@@ -33,15 +33,15 @@ const profile: StpsProfileResponse = {
   },
 };
 
-const driftClaim: ClaimedProtocol = {
+const driftProtocol: MonitoredProtocol = {
   id: "claim-1",
-  label: "Drift workspace",
+  label: "Drift watchlist",
   protocolAddress: DRIFT,
   claimedByWallet: profile.user.primaryWalletAddress,
   status: "verified",
   verificationMethod: "upgrade_authority",
   verificationTarget: profile.user.primaryWalletAddress,
-  verificationNotes: "Wallet matches the upgrade authority on-chain.",
+  verificationNotes: null,
   registrationTxSignature: "sig-1",
   createdAt: "2026-05-09T12:00:00.000Z",
   updatedAt: "2026-05-09T12:05:00.000Z",
@@ -84,7 +84,7 @@ describe("StpsClient", () => {
         "/api/me/protocols": {
           status: "ok",
           count: 1,
-          protocols: [driftClaim],
+          protocols: [driftProtocol],
         } satisfies ProtocolListResponse,
       }),
     });
@@ -105,7 +105,7 @@ describe("StpsClient", () => {
     expect(result.protocols[0].status).toBe("verified");
   });
 
-  it("getProtocol retorna claim individual por address", async () => {
+  it("getProtocol retorna protocolo monitorado individual por address", async () => {
     const result = await client.getProtocol(DRIFT);
 
     expect(result.id).toBe("claim-1");
@@ -119,7 +119,7 @@ describe("StpsClient", () => {
     });
   });
 
-  it("getScore retorna TrustScoreResponse do protocolo claimado", async () => {
+  it("getScore retorna TrustScoreResponse do protocolo monitorado", async () => {
     const score = await client.getScore(DRIFT);
 
     expect(score.protocolAddress).toBe(DRIFT);
@@ -127,7 +127,7 @@ describe("StpsClient", () => {
     expect(score.riskLevel).toBe("Critical");
   });
 
-  it("getHistory retorna o histórico do protocolo claimado", async () => {
+  it("getHistory retorna o histórico do protocolo monitorado", async () => {
     const history = await client.getHistory(DRIFT);
 
     expect(history).toHaveLength(3);
@@ -151,7 +151,6 @@ describe("StpsClient", () => {
 
   it("subscribeToAlerts chama onUpdate quando score muda", async () => {
     let currentScore = 85;
-    let currentVerification: ClaimedProtocol["verificationMethod"] = "upgrade_authority";
     let callCount = 0;
 
     const dynamicFetch = vi.fn(async (input: string | URL | Request) => {
@@ -162,9 +161,8 @@ describe("StpsClient", () => {
         return new Response(JSON.stringify(profile), { status: 200 });
       }
 
-      const claimed: ClaimedProtocol = {
-        ...driftClaim,
-        verificationMethod: currentVerification,
+      const monitored: MonitoredProtocol = {
+        ...driftProtocol,
         protocol: {
           ...driftScore,
           currentScore,
@@ -172,7 +170,7 @@ describe("StpsClient", () => {
       };
 
       return new Response(
-        JSON.stringify({ status: "ok", count: 1, protocols: [claimed] satisfies ClaimedProtocol[] }),
+        JSON.stringify({ status: "ok", count: 1, protocols: [monitored] satisfies MonitoredProtocol[] }),
         { status: 200 },
       );
     }) as unknown as typeof fetch;
@@ -204,10 +202,6 @@ describe("StpsClient", () => {
     await new Promise((r) => setTimeout(r, 80));
     expect(callCount).toBe(2);
     expect(updates[1]).toBe(42);
-
-    currentVerification = "known_admin_signer";
-    await new Promise((r) => setTimeout(r, 80));
-    expect(callCount).toBe(3);
 
     stop();
   });
