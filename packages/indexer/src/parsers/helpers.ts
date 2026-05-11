@@ -1,12 +1,16 @@
 import type { HeliusWebhookPayload } from "../types.js";
-import { DRIFT_PROTOCOL_ADDRESS } from "../constants.js";
 
 export function textIncludesAny(text: string, terms: string[]): boolean {
   const normalized = text.toLowerCase();
   return terms.some((term) => normalized.includes(term.toLowerCase()));
 }
 
-export function readProtocolAddress(payload: HeliusWebhookPayload): string {
+/**
+ * Tenta extrair o endereço do protocolo do payload do webhook.
+ * Retorna null se não conseguir identificar o protocolo — o caller deve
+ * descartar o evento em vez de atribuí-lo a um protocolo errado.
+ */
+export function readProtocolAddress(payload: HeliusWebhookPayload): string | null {
   const eventProtocol = payload.events.protocolAddress;
   if (typeof eventProtocol === "string" && eventProtocol.length > 0) return eventProtocol;
 
@@ -14,7 +18,7 @@ export function readProtocolAddress(payload: HeliusWebhookPayload): string {
   if (accountProtocol) return accountProtocol;
 
   const instructionProtocol = payload.instructions.flatMap((instruction) => instruction.accounts)[0];
-  return instructionProtocol ?? DRIFT_PROTOCOL_ADDRESS;
+  return instructionProtocol ?? null;
 }
 
 export function collectInstructionAccounts(payload: HeliusWebhookPayload): string[] {

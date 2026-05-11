@@ -92,7 +92,7 @@ app.post("/webhook/governance", async (req: Request, res: Response) => {
     }
 
     logError("webhook_processing_failed", error);
-    res.json({ status: "ok" });
+    res.status(500).json({ status: "processing_error" });
   }
 });
 

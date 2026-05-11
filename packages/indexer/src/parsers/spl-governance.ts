@@ -12,9 +12,12 @@ export function parseSplGovernanceTransaction(payload: HeliusWebhookPayload): Go
   const eventType = detectSplGovernanceEventType(payload);
   if (!eventType) return null;
 
+  const protocolAddress = readProtocolAddress(payload);
+  if (!protocolAddress) return null;
+
   return {
     type: eventType,
-    protocolAddress: readProtocolAddress(payload),
+    protocolAddress,
     sourceProgram: "spl-governance",
     rawSignature: payload.signature,
     timestamp: payload.timestamp,

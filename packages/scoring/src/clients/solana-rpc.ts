@@ -49,6 +49,10 @@ export async function findNonceAccountsByAuthority(adminKey: string): Promise<No
     const conn = getConnection();
     const authorityPubkey = new PublicKey(adminKey);
 
+    // NOTE: We must call getProgramAccounts on the System Program to find nonce accounts
+    // (nonce accounts are owned by the System Program). On mainnet, some RPC providers
+    // rate-limit or block this call. We use a try/catch + empty-result fallback in the
+    // caller, so this degrades gracefully when the RPC rejects the request.
     const accounts = await conn.getProgramAccounts(SYSTEM_PROGRAM_ID, {
       commitment: "confirmed",
       filters: [

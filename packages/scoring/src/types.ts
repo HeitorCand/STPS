@@ -47,6 +47,8 @@ export interface LayerResult {
   alerts: LayerAlert[];
   /** Status sumário para a API REST. */
   status: "Healthy" | "Warning" | "Critical";
+  /** Timestamp (ms) do uso mais recente da chave de emergência — usado para resetar o TTL. */
+  emergencyKeyLastUsed?: number;
 }
 
 // ----------------------------------------------------------------------------

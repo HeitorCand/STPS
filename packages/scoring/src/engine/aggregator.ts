@@ -65,16 +65,16 @@ async function doRecalculate(ctx: ScoringContext): Promise<ScoringResult> {
   // ---- L1 (síncrona) ----
   const l1 = runLayer1({ event: ctx.event, current: previous, now });
 
-  // ---- L2 + L3 (paralelas) ----
-  const [l2, l3] = await Promise.all([
-    runLayer2(ctx.protocolAddress).catch((error) => emptyLayerOnError("l2", error)),
-    // L3 precisa das flags L1 já calculadas para avaliar contexto de risco
-    runLayer3({
-      protocolAddress: ctx.protocolAddress,
-      event: ctx.event,
-      combinedFlags: l1.flagsSet,
-    }).catch((error) => emptyLayerOnError("l3", error)),
-  ]);
+  // ---- L2 (paralela com preparação para L3) ----
+  const l2 = await runLayer2(ctx.protocolAddress).catch((error) => emptyLayerOnError("l2", error));
+
+  // ---- L3 recebe flags combinadas L1+L2 para melhor contexto de risco ----
+  const combinedFlagsForL3 = applyFlagDelta(previous.riskFlags, l1, l2, { flagsSet: 0n, flagsClear: 0n, deduction: 0, alerts: [], status: "Healthy" });
+  const l3 = await runLayer3({
+    protocolAddress: ctx.protocolAddress,
+    event: ctx.event,
+    combinedFlags: combinedFlagsForL3,
+  }).catch((error) => emptyLayerOnError("l3", error));
 
   // ---- Combina ----
   const totalDeduction = l1.deduction + l2.deduction + l3.deduction;
@@ -87,6 +87,10 @@ async function doRecalculate(ctx: ScoringContext): Promise<ScoringResult> {
   const newFlagTimestamps = { ...previous.flagTimestamps };
   for (const flagName of activeFlagNames(newFlags & ~previous.riskFlags)) {
     newFlagTimestamps[flagName] = now;
+  }
+  // Always refresh emergency key timestamp when it was used in this event
+  if (l1.emergencyKeyLastUsed !== undefined) {
+    newFlagTimestamps["FLAG_EMERGENCY_KEY_USED"] = l1.emergencyKeyLastUsed;
   }
 
   // ---- Persiste histórico off-chain (sempre) ----

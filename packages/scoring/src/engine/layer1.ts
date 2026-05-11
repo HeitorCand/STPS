@@ -84,12 +84,22 @@ export function runLayer1({ event, current, now }: LayerOneInput): LayerResult {
     }
 
     case "SIGNER_REMOVED": {
-      result.flagsClear |= FLAG_UNKNOWN_SIGNER_ADDED;
+      // NOTE: We only clear the flag if the event metadata explicitly says
+      // all unknown signers are gone (e.g., confirmedClean=true). Otherwise
+      // we conservatively keep the flag — one removal doesn't mean all
+      // unknown signers have been removed.
+      const confirmedClean = event.metadata?.confirmedClean === true ||
+        event.metadata?.remainingUnknownSigners === 0;
+      if (confirmedClean) {
+        result.flagsClear |= FLAG_UNKNOWN_SIGNER_ADDED;
+      }
       break;
     }
 
     case "EMERGENCY_KEY_USED": {
       result.flagsSet |= FLAG_EMERGENCY_KEY_USED;
+      // Mark timestamp so TTL always resets from the most recent use
+      result.emergencyKeyLastUsed = now;
       result.alerts.push({
         flag: "FLAG_EMERGENCY_KEY_USED",
         message: "Chave de emergência usada sem timelock",

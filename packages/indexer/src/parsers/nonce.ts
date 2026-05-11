@@ -3,19 +3,22 @@ import { SYSTEM_PROGRAM_ID } from "../constants.js";
 import { collectInstructionAccounts, readProtocolAddress, textIncludesAny } from "./helpers.js";
 
 export function parseNonceTransaction(payload: HeliusWebhookPayload): GovernanceEvent | null {
-  const hasSystemInstruction = payload.instructions.some(
-    (instruction) => instruction.programId === SYSTEM_PROGRAM_ID,
-  );
-
-  if (!hasSystemInstruction) return null;
-
+  // Only proceed if there is a nonce-keyword signal first (avoids running on every tx with a System Program fee instruction)
   const eventType = detectNonceEventType(payload);
   if (!eventType) return null;
 
+  const hasSystemInstruction = payload.instructions.some(
+    (instruction) => instruction.programId === SYSTEM_PROGRAM_ID,
+  );
+  if (!hasSystemInstruction) return null;
+
+  const protocolAddress = readProtocolAddress(payload);
+  if (!protocolAddress) return null;
+
   return {
     type: eventType,
-    protocolAddress: readProtocolAddress(payload),
-    sourceProgram: "system-nonce",
+    protocolAddress,
+    sourceProgram: 'system-nonce',
     rawSignature: payload.signature,
     timestamp: payload.timestamp,
     metadata: {

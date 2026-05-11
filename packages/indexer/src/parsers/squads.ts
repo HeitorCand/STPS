@@ -12,9 +12,12 @@ export function parseSquadsTransaction(payload: HeliusWebhookPayload): Governanc
   const eventType = detectSquadsEventType(payload);
   if (!eventType) return null;
 
+  const protocolAddress = readProtocolAddress(payload);
+  if (!protocolAddress) return null;
+
   return {
     type: eventType,
-    protocolAddress: readProtocolAddress(payload),
+    protocolAddress,
     sourceProgram: "squads",
     rawSignature: payload.signature,
     timestamp: payload.timestamp,
@@ -42,12 +45,13 @@ function detectSquadsEventType(payload: HeliusWebhookPayload): GovernanceEventTy
     return "EMERGENCY_KEY_USED";
   }
 
-  if (textIncludesAny(text, ["signer", "member", "owner"]) && textIncludesAny(text, ["added", "add"])) {
-    return "SIGNER_ADDED";
-  }
-
+  // Check REMOVED before ADDED to avoid false positives when both keywords appear
   if (textIncludesAny(text, ["signer", "member", "owner"]) && textIncludesAny(text, ["removed", "remove"])) {
     return "SIGNER_REMOVED";
+  }
+
+  if (textIncludesAny(text, ["signer", "member", "owner"]) && textIncludesAny(text, ["added", "add"])) {
+    return "SIGNER_ADDED";
   }
 
   return null;

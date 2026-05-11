@@ -71,11 +71,12 @@ function App() {
 
   const loadWorkspace = useCallback(
     async (token: string | null, mode: 'initial' | 'refresh' = 'initial') => {
-      if (mode === 'initial') {
-      }
       setStatusMessage('Connecting to production Scoring Engine')
 
-      await fetchScoringHealth().catch(() => null)
+      const health = await fetchScoringHealth().catch(() => null)
+      if (!health) {
+        setStatusMessage('Scoring Engine unreachable — data may be stale')
+      }
 
       if (!token) {
         setProtocols(mockProtocols)

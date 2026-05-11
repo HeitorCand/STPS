@@ -20,8 +20,8 @@ process.env.PORT = "0"; // porta aleatória — sobrescrita abaixo
 
 // ── Importa os apps diretamente (sem spawn de processo) ─────────────────────
 // Cada pacote exporta seu app Express para facilitar testes
-import { buildIndexerApp } from "../../indexer/src/index.js";
-import { buildScoringApp } from "../src/index.js";
+import { buildIndexerApp } from "../../packages/indexer/src/index.js";
+import { buildScoringApp } from "../../packages/scoring/src/index.js";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
