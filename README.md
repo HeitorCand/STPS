@@ -36,18 +36,18 @@ Versao pt-br:
 ## SDK — Integração em 2 linhas
 
 ```bash
-npm install @stps/sdk
+npm install stps-sdk
 ```
 
 ```typescript
-import { StpsClient } from "@stps/sdk";
+import { StpsClient } from "stps-sdk";
 
-const client = new StpsClient({ rpcUrl: "https://api.devnet.solana.com" });
+const client = new StpsClient({ token: "<your-api-token>" });
 const score = await client.getScore("dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH");
 
-console.log(score.current_score); // 42
-console.log(score.risk_level);    // "High"
-console.log(score.active_flags);  // ["FLAG_TIMELOCK_REMOVED", ...]
+console.log(score.currentScore); // 42
+console.log(score.riskLevel);    // "High"
+console.log(score.activeFlags);  // ["FLAG_TIMELOCK_REMOVED", ...]
 ```
 
 ---
