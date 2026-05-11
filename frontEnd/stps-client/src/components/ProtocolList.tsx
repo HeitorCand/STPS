@@ -35,9 +35,11 @@ export function ProtocolList({ protocols, selectedAddress, onSelect }: ProtocolL
             </span>
             <span className="protocol-meta">
               <em className={`claim-pill ${protocol.claimStatus}`}>{protocol.claimStatus}</em>
-              <em className={`risk-pill ${riskClass(protocol.riskLevel)}`}>{protocol.riskLevel}</em>
+              <em className={`risk-pill ${riskClass(protocol.riskLevel)}`}>
+                {protocol.dataStatus === 'live' ? protocol.riskLevel : 'Not calculated'}
+              </em>
             </span>
-            <b>{protocol.score}</b>
+            <b>{protocol.dataStatus === 'live' ? protocol.score : '--'}</b>
           </button>
         ))}
       </div>

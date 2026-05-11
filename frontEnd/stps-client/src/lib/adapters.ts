@@ -29,6 +29,8 @@ function toHistory(apiProtocol: ApiProtocol) {
 }
 
 export function toProtocol(claim: ApiClaim): Protocol {
+  const isCalculated = claim.protocol.dataStatus === 'live'
+
   return {
     id: claim.id,
     name: protocolName(claim.protocolAddress, claim.label),
@@ -40,20 +42,23 @@ export function toProtocol(claim: ApiClaim): Protocol {
         : 'Scoring Engine PDA'),
     score: claim.protocol.currentScore,
     riskLevel: claim.protocol.riskLevel,
-    lastUpdate: formatTime(claim.protocol.lastUpdate),
+    lastUpdate: claim.protocol.lastUpdate === null ? null : formatTime(claim.protocol.lastUpdate),
     environment: 'Production',
     activeFlags: claim.protocol.activeFlags,
     recommendation:
-      claim.status === 'verified'
+      !isCalculated
+        ? 'Trust score not calculated. The server did not restore a computed state for this protocol yet.'
+        : claim.status === 'verified'
         ? 'Protocol control verified. Continue monitoring governance, asset and nonce changes.'
         : claim.protocol.activeFlags.length > 0
           ? 'Review active flags before approving critical operations.'
           : 'Complete verification to turn this claim into a monitored certificate workspace.',
-    history: toHistory(claim.protocol),
+    history: isCalculated ? toHistory(claim.protocol) : [],
     claimStatus: claim.status,
     verificationMethod: claim.verificationMethod,
     verificationTarget: claim.verificationTarget,
     verificationNotes: claim.verificationNotes,
     claimedByWallet: claim.claimedByWallet,
+    dataStatus: claim.protocol.dataStatus,
   }
 }

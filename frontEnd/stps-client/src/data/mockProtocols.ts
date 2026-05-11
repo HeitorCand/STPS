@@ -44,6 +44,7 @@ export const mockProtocols: Protocol[] = [
     verificationTarget: 'Preview authority',
     verificationNotes: 'Preview workspace before wallet sign-in.',
     claimedByWallet: 'Preview wallet',
+    dataStatus: 'live',
     isPreview: true,
   },
   {
@@ -78,6 +79,7 @@ export const mockProtocols: Protocol[] = [
     verificationTarget: 'Preview authority',
     verificationNotes: 'Preview workspace before wallet sign-in.',
     claimedByWallet: 'Preview wallet',
+    dataStatus: 'live',
     isPreview: true,
   },
   {
@@ -112,6 +114,7 @@ export const mockProtocols: Protocol[] = [
     verificationTarget: null,
     verificationNotes: 'Preview workspace before wallet sign-in.',
     claimedByWallet: 'Preview wallet',
+    dataStatus: 'live',
     isPreview: true,
   },
 ]

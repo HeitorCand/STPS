@@ -18,10 +18,14 @@ export function OverviewPage({
   const verifiedCount = protocols.filter((protocol) => protocol.claimStatus === 'verified').length
   const reviewCount = protocols.filter((protocol) => protocol.claimStatus === 'manual_review').length
   const attentionCount = protocols.filter(
-    (protocol) => protocol.riskLevel === 'High' || protocol.riskLevel === 'Critical',
+    (protocol) =>
+      protocol.dataStatus !== 'live' ||
+      protocol.riskLevel === 'High' ||
+      protocol.riskLevel === 'Critical',
   ).length
   const attentionProtocols = protocols.filter(
     (protocol) =>
+      protocol.dataStatus !== 'live' ||
       protocol.riskLevel === 'High' ||
       protocol.riskLevel === 'Critical' ||
       protocol.claimStatus !== 'verified',
@@ -79,7 +83,7 @@ export function OverviewPage({
                     {selectedProtocol.claimStatus}
                   </span>
                   <span className={`risk-pill ${riskClass(selectedProtocol.riskLevel)}`}>
-                    {selectedProtocol.riskLevel}
+                    {selectedProtocol.dataStatus === 'live' ? selectedProtocol.riskLevel : 'Not calculated'}
                   </span>
                 </div>
               </div>
@@ -96,11 +100,13 @@ export function OverviewPage({
                 </div>
                 <div>
                   <span>Current score</span>
-                  <strong>{selectedProtocol.score}/100</strong>
+                  <strong>
+                    {selectedProtocol.dataStatus === 'live' ? `${selectedProtocol.score}/100` : 'Not calculated'}
+                  </strong>
                 </div>
                 <div>
                   <span>Last update</span>
-                  <strong>{selectedProtocol.lastUpdate}</strong>
+                  <strong>{selectedProtocol.lastUpdate ?? 'Unavailable'}</strong>
                 </div>
               </div>
               <Link className="overview-focus__link" to="/dashboard/protocols">
@@ -121,7 +127,9 @@ export function OverviewPage({
                 <li>
                   <strong>Flags in view</strong>
                   <span>
-                    {selectedProtocol.activeFlags.length > 0
+                    {selectedProtocol.dataStatus !== 'live'
+                      ? 'The server did not return a calculated trust state for this protocol yet.'
+                      : selectedProtocol.activeFlags.length > 0
                       ? `${selectedProtocol.activeFlags.length} active risk flag${selectedProtocol.activeFlags.length === 1 ? '' : 's'} require attention.`
                       : 'No active risk flags are currently attached to this certificate.'}
                   </span>
@@ -159,7 +167,9 @@ export function OverviewPage({
                       </span>
                       <span className="overview-row__meta">
                         <em className={`claim-pill ${protocol.claimStatus}`}>{protocol.claimStatus}</em>
-                        <em className={`risk-pill ${riskClass(protocol.riskLevel)}`}>{protocol.riskLevel}</em>
+                        <em className={`risk-pill ${riskClass(protocol.riskLevel)}`}>
+                          {protocol.dataStatus === 'live' ? protocol.riskLevel : 'Not calculated'}
+                        </em>
                       </span>
                     </button>
                   ))}
@@ -193,7 +203,9 @@ export function OverviewPage({
                       </span>
                       <span className="overview-row__meta">
                         <em className={`claim-pill ${protocol.claimStatus}`}>{protocol.claimStatus}</em>
-                        <em className={`risk-pill ${riskClass(protocol.riskLevel)}`}>{protocol.riskLevel}</em>
+                        <em className={`risk-pill ${riskClass(protocol.riskLevel)}`}>
+                          {protocol.dataStatus === 'live' ? protocol.riskLevel : 'Not calculated'}
+                        </em>
                       </span>
                     </button>
                   ))}

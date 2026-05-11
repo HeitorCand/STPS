@@ -1,5 +1,5 @@
 export type RiskLevel = 'Low' | 'Medium' | 'High' | 'Critical'
-export type DataStatus = 'loading' | 'live' | 'fallback' | 'error'
+export type DataStatus = 'loading' | 'live' | 'fallback' | 'error' | 'not_calculated'
 export type AuthStatus = 'checking' | 'signed_out' | 'signing_in' | 'signed_in'
 export type ClaimStatus = 'claimed' | 'verified' | 'manual_review'
 export type VerificationMethod = 'upgrade_authority' | 'known_admin_signer' | null
@@ -17,9 +17,9 @@ export type Protocol = {
   name: string
   address: string
   authority: string
-  score: number
-  riskLevel: RiskLevel
-  lastUpdate: string
+  score: number | null
+  riskLevel: RiskLevel | null
+  lastUpdate: string | null
   environment: string
   activeFlags: string[]
   recommendation: string
@@ -29,6 +29,7 @@ export type Protocol = {
   verificationTarget: string | null
   verificationNotes: string | null
   claimedByWallet: string
+  dataStatus: 'live' | 'not_calculated'
   isPreview?: boolean
 }
 
@@ -40,12 +41,13 @@ export type ApiHistoryEntry = {
 
 export type ApiProtocol = {
   protocolAddress: string
-  currentScore: number
-  riskLevel: RiskLevel
+  currentScore: number | null
+  riskLevel: RiskLevel | null
   activeFlags: string[]
   riskFlagsBitmask: string
-  lastUpdate: number
+  lastUpdate: number | null
   history: ApiHistoryEntry[]
+  dataStatus: 'live' | 'not_calculated'
 }
 
 export type ApiProtocolListResponse = {

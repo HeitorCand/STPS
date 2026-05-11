@@ -5,6 +5,8 @@ type CertificatePanelProps = {
 }
 
 export function CertificatePanel({ protocol }: CertificatePanelProps) {
+  const isCalculated = protocol.dataStatus === 'live'
+
   return (
     <section className="certificate-panel" id="certificate" aria-label="Protocol certificate">
       <div className="certificate-head">
@@ -22,11 +24,11 @@ export function CertificatePanel({ protocol }: CertificatePanelProps) {
         </div>
         <div>
           <small>Current score</small>
-          <strong>{protocol.score}/100</strong>
+          <strong>{isCalculated ? `${protocol.score}/100` : 'Not calculated'}</strong>
         </div>
         <div>
           <small>Risk level</small>
-          <strong>{protocol.riskLevel}</strong>
+          <strong>{isCalculated ? protocol.riskLevel : 'Server issue'}</strong>
         </div>
         <div>
           <small>Claim status</small>

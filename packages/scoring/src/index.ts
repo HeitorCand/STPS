@@ -45,6 +45,17 @@ type AuthenticatedRequest = Request & {
   user?: UserRecord;
 };
 
+type SerializedProtocol = {
+  protocolAddress: string;
+  currentScore: number | null;
+  riskLevel: ProtocolState["riskLevel"] | null;
+  activeFlags: string[];
+  riskFlagsBitmask: string;
+  lastUpdate: number | null;
+  history: ProtocolState["history"];
+  dataStatus: "live" | "not_calculated";
+};
+
 const DEFAULT_INITIAL_SCORE = Number(process.env.DEFAULT_INITIAL_SCORE ?? 85);
 
 const governanceEventSchema = z.object({
@@ -185,26 +196,20 @@ async function ensureProtocolTracked(args: {
   return { state, txSignature };
 }
 
-function createPlaceholderProtocol(protocolAddress: string): ReturnType<typeof serializeProtocol> {
-  const timestamp = Date.now();
+function createPlaceholderProtocol(protocolAddress: string): SerializedProtocol {
   return {
     protocolAddress,
-    currentScore: DEFAULT_INITIAL_SCORE,
-    riskLevel: deriveRiskLevel(DEFAULT_INITIAL_SCORE),
+    currentScore: null,
+    riskLevel: null,
     activeFlags: [],
     riskFlagsBitmask: "0",
-    lastUpdate: timestamp,
-    history: [
-      {
-        timestamp,
-        score: DEFAULT_INITIAL_SCORE,
-        reason: "Baseline — protocol claimed",
-      },
-    ],
+    lastUpdate: null,
+    history: [],
+    dataStatus: "not_calculated",
   };
 }
 
-function serializeProtocol(state: ProtocolState) {
+function serializeProtocol(state: ProtocolState): SerializedProtocol {
   return {
     protocolAddress: state.protocolAddress,
     currentScore: state.trustScore,
@@ -213,6 +218,7 @@ function serializeProtocol(state: ProtocolState) {
     riskFlagsBitmask: state.riskFlags.toString(),
     lastUpdate: state.lastUpdate,
     history: state.history,
+    dataStatus: "live",
   };
 }
 

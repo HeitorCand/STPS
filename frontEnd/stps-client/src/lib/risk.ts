@@ -7,6 +7,7 @@ export const riskCopy: Record<RiskLevel, string> = {
   Critical: 'Immediate intervention required',
 }
 
-export function riskClass(level: RiskLevel) {
+export function riskClass(level: RiskLevel | null) {
+  if (!level) return 'unknown'
   return level.toLowerCase()
 }
