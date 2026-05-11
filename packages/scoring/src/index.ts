@@ -245,6 +245,7 @@ function serializeApiToken(record: ApiTokenRecord) {
 
 export function buildScoringApp() {
   const app = express();
+  app.set("trust proxy", 1);
 
   app.use((req, res, next) => {
     const origin = req.header("origin");
