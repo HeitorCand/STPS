@@ -354,6 +354,16 @@ export function buildScoringApp() {
     res.json({ count: protocols.length, protocols });
   });
 
+  app.get("/api/protocols/:address", (req: Request, res: Response) => {
+    const address = String(req.params.address ?? "");
+    const protocol = getProtocol(address);
+    if (!protocol) {
+      res.status(404).json({ status: "not_found", protocolAddress: address });
+      return;
+    }
+    res.json(serializeProtocol(protocol));
+  });
+
   app.post("/api/protocols/register", async (req: Request, res: Response) => {
     try {
       const body = registerProtocolSchema.parse(req.body);
@@ -428,6 +438,11 @@ export function buildScoringApp() {
         return;
       }
       logError("auth_challenge_failed", error);
+      const isDbError = error instanceof Error && (error.message.includes("relation") || error.message.includes("does not exist") || error.message.includes("42P01"));
+      if (isDbError) {
+        res.status(503).json({ status: "onboarding_unavailable", detail: "database_not_migrated" });
+        return;
+      }
       res.status(500).json({ status: "error" });
     }
   });
