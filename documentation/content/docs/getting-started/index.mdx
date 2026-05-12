@@ -8,8 +8,7 @@ Use this page when you want the minimum end-to-end flow:
 
 - open the production dashboard;
 - sign in with a wallet;
-- claim a protocol;
-- verify control;
+- add a protocol to your workspace;
 - read the score in the dashboard;
 - create a token for the SDK.
 
@@ -21,36 +20,20 @@ Use:
 https://stps-client.vercel.app/
 ```
 
-Then sign in with the wallet linked to the protocol.
+Then sign in with the wallet you want to use for this STPS workspace.
 
-> If you use a different wallet, the claim may still be created, but control
-> verification may fall back to `manual_review`.
-
-## 2. Claim the protocol
+## 2. Add the protocol
 
 In the dashboard, go to `Protocols` and provide:
 
 - `Program address`: the Solana program ID of the protocol;
 - `Workspace label`: an optional display name.
 
-The claim creates the link between the operator account and that protocol.
+This creates an account-scoped watchlist entry. STPS does not require you to
+prove that the wallet owns or controls the protocol before adding it to your
+workspace.
 
-## 3. Verify control
-
-The strong verification path currently accepts:
-
-- the signing wallet matches the program upgrade authority; or
-- the signing wallet belongs to the signer/admin set known by STPS.
-
-Possible states:
-
-| Status | Meaning |
-| --- | --- |
-| `claimed` | Protocol linked to the account, but control is not yet proven. |
-| `verified` | Control proven through a supported method. |
-| `manual_review` | STPS could not prove control automatically. |
-
-## 4. Create an SDK token
+## 3. Create an SDK token
 
 In the dashboard token area, create a persistent token.
 
@@ -60,7 +43,7 @@ The raw value is shown only once. Store it as a secret in your backend or CI:
 STPS_API_TOKEN=stps_...
 ```
 
-## 5. Read protocols through the SDK
+## 4. Read protocols through the SDK
 
 ```ts
 import { StpsClient } from "stps-sdk";
@@ -80,5 +63,7 @@ for (const item of protocols) {
 
 - Dashboard:
   `https://stps-client.vercel.app/`
+- Documentation:
+  `https://miguelclaret.github.io/STPS/docs`
 - SDK:
-  package `stps-sdk`
+  `https://www.npmjs.com/package/stps-sdk`

@@ -13,7 +13,7 @@ also serves the authenticated operator workspace.
 - recalculate score, risk level, flags, and history;
 - register protocols when needed;
 - authenticate wallet sessions;
-- store claims and verification state;
+- store account-scoped protocol watchlists;
 - issue persistent SDK tokens;
 - write certificate updates to the Anchor program.
 
@@ -66,8 +66,7 @@ In addition to score, the Scoring Engine also supports the account identity
 layer of the product. That includes:
 
 - operator sessions;
-- protocol claims;
-- verification status;
+- account-scoped protocol entries;
 - issuing and revoking persistent tokens.
 
 This reduces fragmentation. Instead of separate “risk backend” and “account
@@ -82,9 +81,9 @@ The schema defines:
 - wallet identities;
 - auth challenges;
 - sessions;
-- protocol claims;
+- protocol watchlist entries;
 - api tokens.
 
 The database exists to support relationships and access, not to replace the
-chain. Claims, sessions, and tokens live in the workspace. The certificate
-remains the central trust object of the product.
+chain. Workspace entries, sessions, and tokens live in the database. The
+certificate remains the central trust object of the product.

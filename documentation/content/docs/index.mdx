@@ -21,9 +21,9 @@ can be read in the dashboard and consumed through an authenticated SDK surface.
     <div className="stps-docs-kicker">Production trust layer</div>
     <h1>Use STPS as an operator workspace and as an integration surface.</h1>
     <div className="stps-docs-hero__lede">
-      Teams claim protocol programs, verify control with the linked wallet and
-      issue persistent SDK tokens so backend systems consume the same trust view
-      without exposing operator sessions.
+      Users add protocol programs to account-scoped watchlists and issue
+      persistent SDK tokens so backend systems consume the same trust view
+      without exposing wallet sessions.
     </div>
     <div className="stps-docs-action-row">
       <a href="https://stps-client.vercel.app/" target="_blank" rel="noreferrer">
@@ -37,7 +37,7 @@ can be read in the dashboard and consumed through an authenticated SDK surface.
   <div className="stps-docs-hero__object">
     <div className="stps-docs-hero__eyebrow">
       <span>Workspace</span>
-      <strong>Verified operator</strong>
+      <strong>Account watchlist</strong>
     </div>
     <div className="stps-docs-hero__score">
       <small>Trust score</small>
@@ -118,7 +118,7 @@ STPS is built around five surfaces that work together:
   <article className="stps-docs-surface-card">
     <span>04</span>
     <strong>Dashboard</strong>
-    <p>Private workspace for claiming, verifying, reading, and operating by account.</p>
+    <p>Private workspace for adding, reading, and operating protocol watchlists by account.</p>
   </article>
   <article className="stps-docs-surface-card">
     <span>05</span>
@@ -130,10 +130,9 @@ STPS is built around five surfaces that work together:
 ## Usage flow
 
 1. The operator signs in with a Solana wallet.
-2. The operator claims the protocol program address.
-3. STPS verifies control through upgrade authority or a known signer/admin path.
-4. The dashboard shows only the protocols linked to that account.
-5. The operator creates a persistent token to use with `stps-sdk`.
+2. The operator adds a protocol program address to the workspace.
+3. The dashboard shows only the protocols linked to that account.
+4. The operator creates a persistent token to use with `stps-sdk`.
 
 ## Score drop example
 

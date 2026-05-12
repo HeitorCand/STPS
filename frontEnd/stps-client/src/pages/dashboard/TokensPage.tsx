@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import type { ApiToken } from "../../types/stps";
 
+const DOCS_URL = "https://miguelclaret.github.io/STPS/docs";
+const SDK_URL = "https://www.npmjs.com/package/stps-sdk";
+
 type TokensPageProps = {
   tokens: ApiToken[];
   creating: boolean;
@@ -109,11 +112,19 @@ const client = new StpsClient({
           </p>
           <a
             className="token-guide__link"
-            href="https://miguelclaret.github.io/STPS/"
+            href={DOCS_URL}
             target="_blank"
             rel="noreferrer"
           >
-            Open SDK and STPS docs
+            Open STPS docs
+          </a>
+          <a
+            className="token-guide__link"
+            href={SDK_URL}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Open SDK package
           </a>
         </div>
       </section>

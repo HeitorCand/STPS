@@ -3,6 +3,9 @@ import heroImg from "../assets/hero.png";
 import stpsLogo from "../assets/stps_logo.svg";
 import "./LandingPage.css";
 
+const DOCS_URL = "https://miguelclaret.github.io/STPS/docs";
+const SDK_URL = "https://www.npmjs.com/package/stps-sdk";
+
 const riskEvents = [
   {
     label: "Timelock removed",
@@ -143,7 +146,7 @@ export function LandingPage({ isSignedIn }: LandingPageProps) {
               <a href="#demo">Demo</a>
               <a href="#developers">SDK</a>
               <a
-                href="https://miguelclaret.github.io/STPS/"
+                href={DOCS_URL}
                 target="_blank"
                 rel="noreferrer"
               >
@@ -416,11 +419,18 @@ export function LandingPage({ isSignedIn }: LandingPageProps) {
             </p>
             <div className="section-actions">
               <a
-                href="https://miguelclaret.github.io/STPS/"
+                href={DOCS_URL}
                 target="_blank"
                 rel="noreferrer"
               >
                 Read docs
+              </a>
+              <a
+                href={SDK_URL}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Open SDK package
               </a>
             </div>
           </div>
@@ -452,8 +462,9 @@ const score = await client.getScore(protocols[0].protocolAddress);`}</code>
             <article>
               <h3>Who can see a protocol in the dashboard?</h3>
               <p>
-                The monitoring workspace is account-scoped. After sign-in, users
-                see only the protocols they added through that account.
+                Each wallet session opens its own monitoring workspace. When
+                you add a protocol, it stays attached to that account, so only
+                that account sees it after sign-in.
               </p>
             </article>
             <article>

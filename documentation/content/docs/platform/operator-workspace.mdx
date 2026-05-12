@@ -1,6 +1,6 @@
 ---
 title: Operator workspace
-description: Wallet login, protocol claims, control verification, and SDK tokens.
+description: Wallet login, account-scoped protocol watchlists, and SDK tokens.
 icon: WalletCards
 ---
 
@@ -16,9 +16,11 @@ Login uses a wallet-signed challenge:
 3. The client sends the signature back.
 4. The backend creates a session.
 
-## Protocol claim
+## Protocol watchlist entry
 
-A claim links a `programId` to the operator account.
+A protocol entry links a `programId` to the signed-in STPS account. It is a
+workspace watchlist relationship, not a proof that the wallet owns or controls
+the protocol.
 
 Core fields:
 
@@ -26,17 +28,12 @@ Core fields:
 - `label`
 - `claimedByWallet`
 - `status`
-- `verificationMethod`
-- `verificationTarget`
 
-## Control verification
+## Access scope
 
-The current strong path accepts:
-
-- `upgrade_authority`: the signing wallet is the program upgrade authority;
-- `known_admin_signer`: the wallet belongs to the admin/signer set known by STPS.
-
-When there is not enough automatic proof, the claim moves to `manual_review`.
+The dashboard and SDK return only protocols attached to the authenticated
+account. Adding a protocol to the workspace is enough to monitor its score,
+flags, certificate, and history.
 
 ## SDK tokens
 

@@ -35,7 +35,7 @@ flowchart LR
 | Indexer | `packages/indexer` | Receive webhooks and normalize events. |
 | Scoring Engine | `packages/scoring` | Compute score, flags, history, and private workspace state. |
 | Anchor Program | `programs/stps` | Persist the certificate on-chain. |
-| Dashboard | `frontEnd/stps-client` | Login, claim, verification, tokens, and operational reading. |
+| Dashboard | `frontEnd/stps-client` | Login, protocol watchlists, tokens, and operational reading. |
 | SDK | `packages/sdk` | Authenticated access to account-linked protocols. |
 
 ## What each block solves
@@ -70,9 +70,9 @@ product closer to a certificate authority for Solana operations.
 ### Dashboard
 
 The dashboard is the human operational surface. It does not exist to show a
-generic public catalog. It exists to serve the team operating a protocol. That
-is where trust logic becomes workflow: claim, verification, score reading,
-certificate inspection, and token issuance for integrations.
+generic public catalog. It exists as an account-scoped workspace. That is where
+trust logic becomes workflow: adding protocols, reading scores, inspecting
+certificates, and issuing tokens for integrations.
 
 ### SDK
 
@@ -112,16 +112,17 @@ consume an already consolidated state; they are not the origin of that state.
 
 1. A wallet signs the challenge.
 2. The backend creates a session.
-3. The operator claims the protocol.
-4. The backend verifies control.
+3. The operator adds protocol program addresses to the workspace.
+4. The dashboard reads the account-scoped protocol list.
 5. The operator creates persistent tokens for integrations.
 
 This flow separates two ideas that are often mixed together:
 
-- who controls the protocol as the operator;
+- who owns the workspace session;
 - who consumes the trust state as a system.
 
-The wallet solves the first. The persistent token solves the second.
+The wallet solves workspace access. The persistent token solves backend
+consumption.
 
 ## On-chain writing
 
