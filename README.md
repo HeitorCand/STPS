@@ -1,120 +1,103 @@
 # STPS — Solana Trust Protocol Standard
 
-> **"O HTTPS tornou a internet segura e invisível. O STPS faz o mesmo para transações on-chain."**
+> The trust standard for Solana protocols.
 
-O STPS é um protocolo de confiança para a rede Solana que atribui um **Trust Score (0–100)** a cada protocolo DeFi, calculado continuamente a partir de três camadas de análise: governança on-chain, legitimidade de ativos e permissões latentes via *durable nonces*. O score é registrado como um certificado verificável on-chain — análogo a um certificado TLS/HTTPS.
+STPS assigns a dynamic **Trust Score from 0 to 100** to Solana protocols. The
+score is calculated from governance changes, asset legitimacy signals, and
+latent operational risks such as durable nonces. The result is exposed as a
+protocol certificate with score, risk level, active flags, and history.
 
-**O problema que resolve:** ferramentas atuais são reativas (analisam exploits após o fato). O STPS é proativo — teria alertado usuários do **Drift** com score caindo de 85 → 42 *antes* do exploit, ao detectar remoção de timelock e rebaixamento do threshold do multisig.
+The idea is simple: a transaction can be valid on-chain and still be unsafe.
+STPS gives wallets, dApps, protocol teams, and integrators a continuous trust
+signal before users interact with critical flows.
 
----
+## Live Product
 
-## Quick Start
+| Surface | URL |
+| --- | --- |
+| STPS - Client | https://stps-client.vercel.app/ |
+| Documentation | https://miguelclaret.github.io/STPS/docs |
+| SDK Package | https://www.npmjs.com/package/stps-sdk |
 
-```bash
-# 1. Clonar e instalar dependências
-git clone https://github.com/your-org/stps && cd stps
-pnpm install
+## Videos
 
-# 2. Configurar variáveis de ambiente
-cp .env.example .env
-# Editar .env com HELIUS_API_KEY, SCORING_AUTHORITY_KEYPAIR, etc.
+| Video | Link |
+| --- | --- |
+| Pitch video | https://youtu.be/NY6tGXrOpvo |
+| Demo video | https://youtu.be/zXx74rCyCOw |
 
-# 3. Rodar todos os serviços localmente
-pnpm dev
-```
+## What STPS Does
 
-Para setup completo (Devnet deploy, Helius webhook, etc.) veja [`docs/guides/SETUP.md`](docs/guides/SETUP.md).
+- Monitors protocol-level risk instead of only individual transactions.
+- Detects governance and admin changes such as timelock removal, multisig
+  threshold drops, unknown signers, emergency key usage, and durable nonce risk.
+- Computes an explainable Trust Score with active flags and history.
+- Persists certificate state on Solana through an Anchor program.
+- Exposes the same trust view through a private dashboard and `stps-sdk`.
 
-Para o estado atual do projeto (workspace privado, claim/verify e tokens persistentes do SDK), veja
-[`docs/PROJECT_CURRENT_STATE.md`](docs/PROJECT_CURRENT_STATE.md).
+## Current Product Flow
 
-Versao pt-br:
-[`docs/PROJECT_CURRENT_STATE.pt-BR.md`](docs/PROJECT_CURRENT_STATE.pt-BR.md).
+1. A user signs in with a Solana wallet.
+2. The user adds protocol program addresses to an account-scoped workspace.
+3. The dashboard shows score, risk level, flags, certificate data, and history.
+4. The user creates a persistent SDK token.
+5. Backend services consume the same account-scoped trust view with `stps-sdk`.
 
----
+Adding a protocol to the dashboard does not require proving ownership or control
+of that protocol. It creates a private watchlist entry for the signed-in account.
 
-## SDK — Integração em 2 linhas
+## SDK Quickstart
 
 ```bash
 npm install stps-sdk
 ```
 
-```typescript
+```ts
 import { StpsClient } from "stps-sdk";
 
-const client = new StpsClient({ token: "<your-api-token>" });
-const score = await client.getScore("dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH");
+const client = new StpsClient({
+  token: process.env.STPS_API_TOKEN!,
+});
 
-console.log(score.currentScore); // 42
-console.log(score.riskLevel);    // "High"
-console.log(score.activeFlags);  // ["FLAG_TIMELOCK_REMOVED", ...]
+const { protocols } = await client.getProtocols();
+const score = await client.getScore(protocols[0].protocolAddress);
+
+console.log(score.currentScore);
+console.log(score.riskLevel);
+console.log(score.activeFlags);
 ```
 
----
+A runnable SDK demo lives in:
 
-## Arquitetura
-
-```
-[Helius Webhooks] → [Indexer] → [Scoring Engine] → [Anchor Program]
-                                                          ↓
-                                              [Frontend Dashboard] + [SDK]
+```txt
+examples/sdk-basic
 ```
 
-| Camada | Função |
-| :--- | :--- |
-| **L1 Governance Intelligence** | Monitora multisigs (Squads), timelocks e thresholds |
-| **L2 Asset Legitimacy** | Detecta wash trading, colateral artificial e tokens novos |
-| **L3 Durable Nonce Watchdog** | Detecta permissões latentes invisíveis em ferramentas comuns |
+## Architecture
 
----
-
-## Estrutura do Repositório
-
-```
-stps/
-├── programs/stps/        # Smart Contract (Anchor/Rust)
-├── packages/
-│   ├── indexer/          # Helius Webhook listener (TypeScript)
-│   ├── scoring/          # Scoring Engine API (TypeScript/Express)
-│   └── sdk/              # SDK NPM público (TypeScript)
-├── apps/dashboard/       # Frontend (Next.js 14)
-└── docs/                 # Toda a documentação
+```txt
+Solana activity
+  -> Helius Webhooks
+  -> Indexer
+  -> Scoring Engine
+  -> Anchor Program
+  -> Dashboard + SDK
 ```
 
----
+| Component | Folder | Responsibility |
+| --- | --- | --- |
+| Anchor Program | `programs/stps` | Stores protocol Trust Score certificates as PDAs. |
+| Indexer | `packages/indexer` | Receives Helius webhooks and normalizes governance events. |
+| Scoring Engine | `packages/scoring` | Computes scores, flags, history, workspace auth, and SDK tokens. |
+| SDK | `packages/sdk` | Published npm package for authenticated protocol trust reads. |
+| Dashboard | `frontEnd/stps-client` | Wallet login, protocol watchlists, score inspection, and token creation. |
+| Docs | `documentation` | Fumadocs/Next documentation site. |
 
-## Documentação
+## Risk Layers
 
-| Documento | Descrição |
-| :--- | :--- |
-| [DesignDoc](docs/DesignDoc.md) | Visão do produto, arquitetura das 3 camadas, plano de execução |
-| [DocTech](docs/DocTech.md) | Especificação técnica, schemas, API, DoD |
-| [Arquitetura](docs/architecture/ARCHITECTURE.md) | Diagrama completo, decisões arquiteturais |
-| [Algoritmo de Scoring](docs/architecture/SCORING_ALGORITHM.md) | Heurísticas, pesos e caso Drift |
-| [Smart Contract Spec](docs/architecture/SMART_CONTRACT.md) | Instruções Anchor, contas, erros |
-| [Setup Local](docs/guides/SETUP.md) | Pré-requisitos, env vars, deploy Devnet |
-| [Glossário](docs/guides/GLOSSARY.md) | Termos técnicos definidos |
+| Layer | Focus |
+| --- | --- |
+| L1 Governance Intelligence | Timelocks, multisig thresholds, signer changes, emergency keys. |
+| L2 Asset Legitimacy | Liquidity, token age, holder concentration, suspicious market activity. |
+| L3 Durable Nonce Watchdog | Latent admin permissions and pre-signed operations. |
 
----
-
-## Stack
-
-| Componente | Tecnologia |
-| :--- | :--- |
-| Smart Contract | Anchor 0.29+ (Rust) |
-| Indexer + Scoring Engine | TypeScript + Express |
-| Frontend | Next.js 14 + Tailwind + Recharts |
-| SDK | TypeScript (NPM) |
-| Webhooks | Helius SDK |
-
----
-
-## Equipe
-
-| ID | Papel |
-| :--- | :--- |
-| P1 | Anchor Dev — Smart Contract |
-| P2 | Indexer Dev — Helius Webhooks |
-| P3 | Scoring Engine Dev — API + Heurísticas |
-| P4 | Frontend Dev — Dashboard |
-| P5 | Tech Lead — Arquitetura + Pitch |
