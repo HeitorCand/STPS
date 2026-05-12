@@ -1,0 +1,16 @@
+{
+  "name": "stps-sdk-basic-demo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate-protocol": "node generate-demo-protocol.mjs",
+    "start": "node demo.mjs",
+    "watch": "node demo.mjs --watch"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.95.8",
+    "dotenv": "^16.4.7",
+    "stps-sdk": "^0.2.1"
+  }
+}
